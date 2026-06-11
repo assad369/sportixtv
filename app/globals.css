@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #0b0f17;
-  --color-surface: #121826;
-  --color-surface-2: #1a2233;
-  --color-surface-3: #222c42;
-  --color-edge: #232d42;
-  --color-ink: #e6eaf2;
+  --color-bg: #080c14;
+  --color-surface: #0e1520;
+  --color-surface-2: #141f2e;
+  --color-surface-3: #1c2a3e;
+  --color-edge: #1e2d44;
+  --color-ink: #e8ecf4;
   --color-ink-muted: #8b94a7;
-  --color-ink-faint: #5c6478;
+  --color-ink-faint: #4e5870;
   --color-brand: #10b981;
   --color-brand-dark: #059669;
   --color-live: #ef4444;
@@ -17,23 +17,23 @@
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --animate-marquee: marquee 30s linear infinite;
   --animate-pulse-live: pulse-live 1.6s ease-in-out infinite;
+  --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-fade-up: fade-up 0.4s ease-out both;
 
   @keyframes marquee {
-    from {
-      transform: translateX(100%);
-    }
-    to {
-      transform: translateX(-100%);
-    }
+    from { transform: translateX(100%); }
+    to { transform: translateX(-100%); }
   }
   @keyframes pulse-live {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.45;
-    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+  @keyframes ping {
+    75%, 100% { transform: scale(2); opacity: 0; }
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }
 
@@ -80,4 +80,34 @@ body {
 /* Hide native video controls cues when using custom chrome */
 video::-webkit-media-controls {
   display: none !important;
+}
+
+/* Match event header gradient */
+.bg-match-header {
+  background:
+    radial-gradient(ellipse at 50% -10%, color-mix(in srgb, var(--color-brand) 10%, transparent) 0%, transparent 60%),
+    var(--color-surface-2);
+}
+
+/* Section title accent bar */
+.section-accent {
+  display: inline-block;
+  width: 3px;
+  height: 1.125rem;
+  border-radius: 9999px;
+  background: linear-gradient(to bottom, var(--color-brand), var(--color-brand-dark));
+  flex-shrink: 0;
+}
+
+/* Card glow on hover */
+.card-glow:hover {
+  box-shadow: 0 16px 48px -12px color-mix(in srgb, var(--color-brand) 15%, transparent),
+              0 4px 16px -4px rgba(0,0,0,0.4);
+}
+
+/* Gradient border effect */
+.gradient-border {
+  background: linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
+              linear-gradient(135deg, color-mix(in srgb, var(--color-brand) 30%, transparent), transparent 50%) border-box;
+  border: 1px solid transparent;
 }

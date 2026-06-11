@@ -22,7 +22,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Mobile"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-edge bg-surface/95 backdrop-blur md:hidden pb-[env(safe-area-inset-bottom)]"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/5 bg-surface/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       <div className="grid grid-cols-4">
         {ITEMS.map(({ href, label, Icon }) => {
@@ -33,11 +33,14 @@ export function BottomNav() {
               key={href}
               href={href}
               className={cn(
-                "flex flex-col items-center gap-1 py-2 text-[11px]",
-                active ? "text-brand" : "text-ink-muted",
+                "relative flex flex-col items-center gap-1 py-3 text-[10px] font-semibold transition-colors",
+                active ? "text-brand" : "text-ink-faint",
               )}
             >
-              <Icon className="size-5" />
+              {active && (
+                <span className="absolute inset-x-4 top-0 h-0.5 rounded-full bg-brand" />
+              )}
+              <Icon className={cn("size-5 transition-transform", active && "scale-110")} />
               {label}
             </Link>
           );

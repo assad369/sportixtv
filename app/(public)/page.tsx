@@ -29,15 +29,16 @@ async function CategorySection({
   if (channels.length === 0) return null;
   return (
     <section aria-label={name}>
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-bold">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="flex items-center gap-2.5 text-lg font-black tracking-tight">
+          <span className="section-accent" />
           {icon} {name}
         </h2>
         <Link
           href={`/category/${slug}`}
-          className="flex items-center gap-0.5 text-sm text-brand hover:underline"
+          className="flex items-center gap-1 rounded-xl border border-white/5 px-3 py-1.5 text-xs font-semibold text-ink-muted transition-all hover:border-brand/30 hover:text-brand"
         >
-          View all <ChevronRightIcon className="size-4" />
+          View all <ChevronRightIcon className="size-3.5" />
         </Link>
       </div>
       <ChannelGrid channels={channels} />
@@ -54,24 +55,38 @@ export default async function HomePage() {
   ]);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-10">
       <JsonLd data={websiteJsonLd(settings)} />
-      <h1 className="sr-only">Watch Live Sports & TV Channels Online</h1>
+      <h1 className="sr-only">Watch Live Sports &amp; TV Channels Online</h1>
 
+      {/* Live & Upcoming Events */}
       <LiveNowStrip />
 
+      {/* Category filter chips */}
       <CategoryChips categories={categories} />
 
+      {/* Featured channels */}
       {featured.length > 0 && (
         <section aria-label="Featured channels">
-          <h2 className="mb-3 text-lg font-bold">⭐ Featured Channels</h2>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="flex items-center gap-2.5 text-lg font-black tracking-tight">
+              <span className="section-accent" />
+              ⭐ Featured Channels
+            </h2>
+          </div>
           <ChannelGrid channels={featured} />
         </section>
       )}
 
+      {/* Trending channels */}
       {trending.length > 0 && (
         <section aria-label="Trending channels">
-          <h2 className="mb-3 text-lg font-bold">🔥 Trending Now</h2>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="flex items-center gap-2.5 text-lg font-black tracking-tight">
+              <span className="section-accent" />
+              🔥 Trending Now
+            </h2>
+          </div>
           <ChannelGrid channels={trending} />
         </section>
       )}

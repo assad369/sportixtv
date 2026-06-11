@@ -12,21 +12,27 @@ import { useEventStatus } from "./EventCard";
 function Team({ team }: { team?: { name: string; logoUrl?: string } }) {
   if (!team) return null;
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-3">
       {team.logoUrl ? (
-        <Image
-          src={team.logoUrl}
-          alt={team.name}
-          width={64}
-          height={64}
-          className="size-16 rounded-full bg-surface-2 object-cover"
-        />
+        <div className="size-20 overflow-hidden rounded-full ring-2 ring-white/10 sm:size-24">
+          <Image
+            src={team.logoUrl}
+            alt={team.name}
+            width={96}
+            height={96}
+            className="size-full object-cover"
+          />
+        </div>
       ) : (
-        <span className="grid size-16 place-items-center rounded-full bg-surface-2 text-lg font-bold">
-          {team.name.slice(0, 2).toUpperCase()}
-        </span>
+        <div className="grid size-20 place-items-center rounded-full bg-surface-3 ring-2 ring-white/10 sm:size-24">
+          <span className="text-2xl font-black text-ink-muted">
+            {team.name.slice(0, 2).toUpperCase()}
+          </span>
+        </div>
       )}
-      <p className="text-center font-semibold">{team.name}</p>
+      <p className="max-w-28 text-center text-sm font-bold leading-snug sm:max-w-36">
+        {team.name}
+      </p>
     </div>
   );
 }
@@ -45,50 +51,77 @@ export function EventWatch({
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="rounded-xl border border-edge bg-surface p-5">
-        <div className="flex items-center justify-center gap-2 text-xs uppercase tracking-wide text-ink-faint">
-          <span>{event.league ?? event.sport}</span>
-          {status === "live" && <LiveBadge />}
-          {status === "upcoming" && <Badge variant="brand">Upcoming</Badge>}
-          {status === "ended" && <Badge>Ended</Badge>}
-        </div>
+      {/* Match header card */}
+      <header className="bg-match-header relative overflow-hidden rounded-2xl border border-white/5">
+        {/* Status line */}
+        <div
+          className={cn(
+            "h-0.5 w-full",
+            status === "live"
+              ? "bg-gradient-to-r from-transparent via-live to-transparent"
+              : status === "upcoming"
+                ? "bg-gradient-to-r from-transparent via-brand to-transparent"
+                : "bg-white/5",
+          )}
+        />
 
-        {event.teamA && event.teamB ? (
-          <div className="mt-4 flex items-center justify-center gap-8">
-            <Team team={event.teamA} />
-            <span className="text-xl font-bold text-ink-faint">VS</span>
-            <Team team={event.teamB} />
+        <div className="px-6 py-8">
+          <div className="flex items-center justify-center gap-3">
+            <span className="text-xs font-bold uppercase tracking-widest text-ink-faint">
+              {event.league ?? event.sport}
+            </span>
+            {status === "live" && <LiveBadge />}
+            {status === "upcoming" && <Badge variant="brand">Upcoming</Badge>}
+            {status === "ended" && <Badge>Ended</Badge>}
           </div>
-        ) : (
-          <h1 className="mt-3 text-center text-xl font-bold">{event.title}</h1>
-        )}
 
-        <p className="mt-3 text-center text-sm text-ink-muted">
-          <time dateTime={event.startsAt} suppressHydrationWarning>
-            {start.toLocaleString(undefined, {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </time>
-        </p>
+          {event.teamA && event.teamB ? (
+            <div className="mt-8 flex items-center justify-center gap-6 sm:gap-16">
+              <Team team={event.teamA} />
+              <div className="flex flex-col items-center gap-1.5 px-2">
+                <span className="text-3xl font-black tracking-tight text-ink-faint/40">
+                  VS
+                </span>
+              </div>
+              <Team team={event.teamB} />
+            </div>
+          ) : (
+            <h1 className="mt-5 text-center text-2xl font-black tracking-tight">
+              {event.title}
+            </h1>
+          )}
+
+          <p className="mt-5 text-center text-sm font-medium text-ink-muted">
+            <time dateTime={event.startsAt} suppressHydrationWarning>
+              {start.toLocaleString(undefined, {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </time>
+          </p>
+        </div>
       </header>
 
+      {/* Player section */}
       {channels.length > 0 ? (
-        <div>
+        <div className="flex flex-col gap-4">
           {channels.length > 1 && (
-            <div className="mb-3 flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2">
+              <span className="self-center text-xs font-semibold text-ink-faint">
+                Watch on:
+              </span>
               {channels.map((c, i) => (
                 <button
                   key={c.id}
                   onClick={() => setSelected(i)}
                   className={cn(
-                    "rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
+                    "rounded-xl border px-4 py-2 text-sm font-semibold transition-all duration-200",
                     i === selected
-                      ? "border-brand bg-brand/15 text-brand"
-                      : "border-edge bg-surface text-ink-muted hover:border-brand/50",
+                      ? "border-brand/40 bg-brand/15 text-brand shadow-md shadow-brand/10"
+                      : "border-white/5 bg-surface text-ink-muted hover:border-white/10 hover:bg-surface-2 hover:text-ink",
                   )}
                 >
                   {c.name}
@@ -111,9 +144,11 @@ export function EventWatch({
           )}
         </div>
       ) : (
-        <p className="rounded-xl border border-dashed border-edge py-12 text-center text-sm text-ink-faint">
-          No broadcast channel linked to this event yet.
-        </p>
+        <div className="rounded-2xl border border-dashed border-white/8 py-16 text-center">
+          <p className="text-sm font-medium text-ink-faint">
+            No broadcast channel linked to this event yet.
+          </p>
+        </div>
       )}
     </div>
   );

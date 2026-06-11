@@ -11,9 +11,9 @@ export function ChannelGrid({
 }) {
   if (channels.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-edge py-16 text-ink-faint">
-        <TvIcon className="size-10" />
-        <p className="text-sm">{emptyText}</p>
+      <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-white/8 py-16 text-ink-faint">
+        <TvIcon className="size-10 opacity-40" />
+        <p className="text-sm font-medium">{emptyText}</p>
       </div>
     );
   }

@@ -12,11 +12,11 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
+        "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest",
         variant === "default" && "bg-surface-3 text-ink-muted",
-        variant === "live" && "bg-live text-white",
-        variant === "brand" && "bg-brand/15 text-brand",
-        variant === "outline" && "border border-edge text-ink-muted",
+        variant === "live" && "bg-live/15 text-live ring-1 ring-live/30",
+        variant === "brand" && "bg-brand/12 text-brand ring-1 ring-brand/25",
+        variant === "outline" && "border border-white/10 text-ink-muted",
         className,
       )}
     >
@@ -27,9 +27,17 @@ export function Badge({
 
 export function LiveBadge({ className }: { className?: string }) {
   return (
-    <Badge variant="live" className={className}>
-      <span className="size-1.5 rounded-full bg-white animate-pulse-live" />
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full bg-live/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-live ring-1 ring-live/30",
+        className,
+      )}
+    >
+      <span className="relative flex size-1.5">
+        <span className="absolute inline-flex h-full w-full rounded-full bg-live opacity-70 animate-ping" />
+        <span className="relative inline-flex size-1.5 rounded-full bg-live" />
+      </span>
       Live
-    </Badge>
+    </span>
   );
 }

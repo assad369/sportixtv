@@ -45,8 +45,9 @@ export default async function ChannelPage({ params }: Props) {
   return (
     <div className="flex flex-col gap-8">
       <JsonLd data={channelJsonLd(channel, settings)} />
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
         <div>
+          {/* Player */}
           <LivePlayer
             channelId={channel.id}
             channelName={channel.name}
@@ -61,29 +62,38 @@ export default async function ChannelPage({ params }: Props) {
 
           <AdSlot placement="below_player" className="mt-4" />
 
-          <div className="mt-4 flex items-start gap-4">
-            <Image
-              src={channel.logoUrl}
-              alt={`${channel.name} logo`}
-              width={56}
-              height={56}
-              className="size-14 rounded-xl bg-surface-2 object-cover"
-            />
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-xl font-bold">{channel.name}</h1>
-                <LiveBadge />
+          {/* Channel info card */}
+          <div className="mt-4 overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-b from-surface-2 to-surface">
+            <div className="p-4">
+              <div className="flex items-start gap-4">
+                <div className="relative shrink-0 size-14 overflow-hidden rounded-xl ring-2 ring-white/8">
+                  <Image
+                    src={channel.logoUrl}
+                    alt={`${channel.name} logo`}
+                    fill
+                    sizes="56px"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="text-xl font-black tracking-tight">{channel.name}</h1>
+                    <LiveBadge />
+                  </div>
+                  <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-ink-faint">
+                    <EyeIcon className="size-3.5" />
+                    {formatViews(channel.viewCount)} views
+                  </p>
+                  {channel.description && (
+                    <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+                      {channel.description}
+                    </p>
+                  )}
+                </div>
               </div>
-              <p className="mt-1 flex items-center gap-1 text-xs text-ink-faint">
-                <EyeIcon className="size-3.5" />
-                {formatViews(channel.viewCount)} views
-              </p>
-              {channel.description && (
-                <p className="mt-2 text-sm text-ink-muted">
-                  {channel.description}
-                </p>
-              )}
-              <div className="mt-3 flex flex-wrap gap-2">
+
+              {/* Action buttons */}
+              <div className="mt-4 flex flex-wrap gap-2 border-t border-white/5 pt-4">
                 <FavoriteButton channelSlug={channel.slug} />
                 <ShareButtons title={`Watch ${channel.name} Live`} />
                 <ReportButton channelId={channel.id} />
@@ -99,7 +109,10 @@ export default async function ChannelPage({ params }: Props) {
 
       {related.length > 0 && (
         <section aria-label="Related channels">
-          <h2 className="mb-3 text-lg font-bold">More Channels</h2>
+          <div className="mb-4 flex items-center gap-2.5">
+            <span className="section-accent" />
+            <h2 className="text-lg font-black tracking-tight">More Channels</h2>
+          </div>
           <ChannelGrid channels={related} />
         </section>
       )}
