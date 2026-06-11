@@ -1,26 +1,83 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-bg: #0b0f17;
+  --color-surface: #121826;
+  --color-surface-2: #1a2233;
+  --color-surface-3: #222c42;
+  --color-edge: #232d42;
+  --color-ink: #e6eaf2;
+  --color-ink-muted: #8b94a7;
+  --color-ink-faint: #5c6478;
+  --color-brand: #10b981;
+  --color-brand-dark: #059669;
+  --color-live: #ef4444;
+  --color-warn: #f59e0b;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --animate-marquee: marquee 30s linear infinite;
+  --animate-pulse-live: pulse-live 1.6s ease-in-out infinite;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  @keyframes marquee {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  @keyframes pulse-live {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.45;
+    }
   }
 }
 
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Visitor deterrent: applied to <body> by DeterrentProvider, never for admins */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+}
+.no-select input,
+.no-select textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-brand) 40%, transparent);
+}
+
+/* Thin scrollbars for horizontal rails */
+.rail-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-3) transparent;
+}
+.rail-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.rail-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-surface-3);
+  border-radius: 3px;
+}
+
+/* Hide native video controls cues when using custom chrome */
+video::-webkit-media-controls {
+  display: none !important;
 }
