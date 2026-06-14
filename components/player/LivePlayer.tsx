@@ -288,7 +288,6 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
             allow={iframeAttrs.allow ?? "autoplay; fullscreen; encrypted-media; picture-in-picture"}
             allowFullScreen={iframeAttrs.allowFullScreen}
             scrolling={iframeAttrs.scrolling}
-            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
           />
         ) : (
           <video
