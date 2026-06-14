@@ -71,6 +71,7 @@ export default function RootLayout({
             `,
           }}
         />
+        <script>(function(s){s.dataset.zone='11146144',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
       </head>
       <body className="min-h-full flex flex-col">
         {children}
