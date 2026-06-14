@@ -58,6 +58,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        <meta name="monetag" content="0d655a9f16face036850766f3cbcc327" />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-M01GYZSS9V"></script>
         <script
           dangerouslySetInnerHTML={{
