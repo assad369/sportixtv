@@ -58,6 +58,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        <script>(function(s){s.dataset.zone='11146144',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+        
         <meta name="monetag" content="0d655a9f16face036850766f3cbcc327" />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-M01GYZSS9V"></script>
         <script
@@ -71,7 +73,7 @@ export default function RootLayout({
             `,
           }}
         />
-        <script>(function(s){s.dataset.zone='11146144',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    
       </head>
       <body className="min-h-full flex flex-col">
         {children}
