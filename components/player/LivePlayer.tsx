@@ -28,9 +28,32 @@ interface QualityLevel {
   bitrate: number;
 }
 
+interface IframeAttrs {
+  src: string;
+  allow?: string;
+  allowFullScreen?: boolean;
+  scrolling?: string;
+}
+
+function parseIframeCode(code: string): IframeAttrs | null {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(code, "text/html");
+  const el = doc.querySelector("iframe");
+  if (!el) return null;
+  const src = el.getAttribute("src");
+  if (!src) return null;
+  return {
+    src,
+    allow: el.getAttribute("allow") ?? undefined,
+    allowFullScreen:
+      el.hasAttribute("allowfullscreen") || el.hasAttribute("allowFullScreen"),
+    scrolling: el.getAttribute("scrolling") ?? undefined,
+  };
+}
+
 type SourceResult =
   | { type: "hls"; url: string }
-  | { type: "iframe"; url: string }
+  | { type: "iframe"; code: string }
   | null;
 
 async function fetchSource(
@@ -45,7 +68,7 @@ async function fetchSource(
     });
     if (!res.ok) return null;
     const data = await res.json();
-    if (data.type === "iframe" && data.url) return { type: "iframe", url: data.url };
+    if (data.type === "iframe" && data.code) return { type: "iframe", code: data.code };
     if (data.url) return { type: "hls", url: data.url };
     return null;
   } catch {
@@ -68,7 +91,7 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
   const [showQuality, setShowQuality] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [iframeUrl, setIframeUrl] = useState<string | null>(null);
+  const [iframeAttrs, setIframeAttrs] = useState<IframeAttrs | null>(null);
 
   const destroy = useCallback(() => {
     hlsRef.current?.destroy();
@@ -90,7 +113,7 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
     async (index: number) => {
       const video = videoRef.current;
       destroy();
-      setIframeUrl(null);
+      setIframeAttrs(null);
       setState("loading");
       setLevels([]);
 
@@ -106,7 +129,12 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
       }
 
       if (result.type === "iframe") {
-        setIframeUrl(result.url);
+        const attrs = parseIframeCode(result.code);
+        if (!attrs) {
+          setState("error");
+          return;
+        }
+        setIframeAttrs(attrs);
         setState("playing");
         return;
       }
@@ -253,12 +281,13 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
         onTouchStart={pokeControls}
         className="group relative aspect-video w-full overflow-hidden rounded-xl bg-black"
       >
-        {iframeUrl ? (
+        {iframeAttrs ? (
           <iframe
-            src={iframeUrl}
+            src={iframeAttrs.src}
             className="h-full w-full border-0"
-            allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-            allowFullScreen
+            allow={iframeAttrs.allow ?? "autoplay; fullscreen; encrypted-media; picture-in-picture"}
+            allowFullScreen={iframeAttrs.allowFullScreen}
+            scrolling={iframeAttrs.scrolling}
             sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
           />
         ) : (
@@ -274,7 +303,7 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
           />
         )}
 
-        {!iframeUrl && state === "loading" && (
+        {!iframeAttrs && state === "loading" && (
           <div className="pointer-events-none absolute inset-0 grid place-items-center">
             <div className="size-12 animate-spin rounded-full border-4 border-white/20 border-t-brand" />
           </div>
@@ -298,7 +327,7 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
         )}
 
         {/* Controls bar — only shown for HLS sources */}
-        {!iframeUrl && (
+        {!iframeAttrs && (
           <div
             className={cn(
               "absolute inset-x-0 bottom-0 flex items-center gap-3 bg-gradient-to-t from-black/80 to-transparent px-3 pb-2 pt-8 transition-opacity",

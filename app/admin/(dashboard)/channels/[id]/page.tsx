@@ -28,7 +28,7 @@ export default async function EditChannelPage({
     url: s.urlEnc ? decryptSecret(s.urlEnc) : "",
     referer: s.refererEnc ? decryptSecret(s.refererEnc) : "",
     userAgent: s.userAgentEnc ? decryptSecret(s.userAgentEnc) : "",
-    iframeUrl: s.iframeUrlEnc ? decryptSecret(s.iframeUrlEnc) : "",
+    iframeCode: s.iframeCodeEnc ? decryptSecret(s.iframeCodeEnc) : "",
     active: s.active,
   }));
 

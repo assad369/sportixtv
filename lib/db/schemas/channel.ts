@@ -11,8 +11,8 @@ export interface ChannelSource {
   refererEnc?: EncryptedBlob | null;
   /** Optional User-Agent some IPTV origins require (encrypted). */
   userAgentEnc?: EncryptedBlob | null;
-  /** AES-256-GCM encrypted iframe embed URL. Never sent to the client. Iframe only. */
-  iframeUrlEnc?: EncryptedBlob | null;
+  /** AES-256-GCM encrypted full iframe HTML code. Never sent to the client. Iframe only. */
+  iframeCodeEnc?: EncryptedBlob | null;
   order: number;
   active: boolean;
 }

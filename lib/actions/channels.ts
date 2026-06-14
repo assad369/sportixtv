@@ -22,7 +22,7 @@ const sourceSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("iframe"),
     label: z.string().min(1).max(50),
-    iframeUrl: z.string().url().max(2000),
+    iframeCode: z.string().min(1).max(4000),
     active: z.boolean(),
   }),
 ]);
@@ -75,7 +75,7 @@ export async function upsertChannel(formData: FormData): Promise<void> {
       return {
         type: "iframe" as const,
         label: s.label,
-        iframeUrlEnc: encryptSecret(s.iframeUrl),
+        iframeCodeEnc: encryptSecret(s.iframeCode),
         order: i,
         active: s.active,
       };

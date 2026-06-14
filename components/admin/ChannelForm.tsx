@@ -12,7 +12,7 @@ export interface EditableSource {
   url: string;
   referer: string;
   userAgent: string;
-  iframeUrl: string;
+  iframeCode: string;
   active: boolean;
 }
 
@@ -37,7 +37,7 @@ const EMPTY_SOURCE: EditableSource = {
   url: "",
   referer: "",
   userAgent: "",
-  iframeUrl: "",
+  iframeCode: "",
   active: true,
 };
 
@@ -244,15 +244,15 @@ export function ChannelForm({
                 ) : (
                   <div className="sm:col-span-2">
                     <label className="mb-1 block text-xs text-ink-muted">
-                      iFrame URL *
+                      iFrame HTML Code *
                     </label>
-                    <Input
-                      value={s.iframeUrl}
+                    <Textarea
+                      value={s.iframeCode}
                       onChange={(e) =>
-                        updateSource(i, { iframeUrl: e.target.value })
+                        updateSource(i, { iframeCode: e.target.value })
                       }
-                      type="url"
-                      placeholder="https://example.com/embed/player"
+                      rows={4}
+                      placeholder={'<iframe src="https://example.com/embed/player" width="100%" height="500" allow="autoplay; fullscreen" allowfullscreen></iframe>'}
                       required
                     />
                   </div>

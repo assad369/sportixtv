@@ -33,21 +33,21 @@ export async function POST(request: Request) {
   const col = await channels();
   const channel = await col.findOne(
     { _id: new ObjectId(body.channelId), isActive: true },
-    { projection: { "sources.type": 1, "sources.active": 1, "sources.iframeUrlEnc": 1 } },
+    { projection: { "sources.type": 1, "sources.active": 1, "sources.iframeCodeEnc": 1 } },
   );
   const source = channel?.sources?.[body.sourceIndex];
   if (!source || !source.active) {
     return Response.json({ error: "Source not available" }, { status: 404 });
   }
 
-  // Iframe sources return the decrypted URL directly — no HLS token flow.
+  // Iframe sources return the decrypted HTML code directly — no HLS token flow.
   if (source.type === "iframe") {
-    if (!source.iframeUrlEnc) {
+    if (!source.iframeCodeEnc) {
       return Response.json({ error: "Source not available" }, { status: 404 });
     }
-    const iframeUrl = decryptSecret(source.iframeUrlEnc);
+    const iframeCode = decryptSecret(source.iframeCodeEnc);
     return Response.json(
-      { type: "iframe", url: iframeUrl },
+      { type: "iframe", code: iframeCode },
       { headers: { "Cache-Control": "no-store" } },
     );
   }
