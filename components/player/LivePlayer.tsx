@@ -304,16 +304,16 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
         )}
 
         {/* SportixTV watermark — covers broadcaster logo in top-right */}
-        <div className="pointer-events-none absolute right-3 top-3 z-20 flex items-center gap-2 rounded-full bg-black/50 px-3 py-2 backdrop-blur-sm">
+        <div className="pointer-events-none absolute right-2 top-2 z-20 flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 backdrop-blur-sm sm:right-3 sm:top-3 sm:gap-2 sm:px-3 sm:py-2">
           <Image
             src="/logo/sportixtv_logo.png"
             alt="SportixTV"
             width={28}
             height={28}
-            className="size-7 rounded-full object-cover"
+            className="size-4 rounded-full object-cover sm:size-7"
             unoptimized
           />
-          <span className="text-xs font-semibold tracking-wide text-white/90">
+          <span className="text-[9px] font-semibold tracking-wide text-white/90 sm:text-xs">
             sportixtv.online
           </span>
         </div>
