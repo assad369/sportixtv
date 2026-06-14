@@ -139,6 +139,11 @@ export function EventWatch({
                   ? channel.sourceLabels
                   : ["Server 1"]
               }
+              sourceTypes={
+                channel.sourceTypes.length > 0
+                  ? channel.sourceTypes
+                  : ["hls"]
+              }
               poster={channel.logoUrl}
             />
           )}

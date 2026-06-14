@@ -72,7 +72,11 @@ export function rewriteMasterPlaylist(
     .join("\n");
 }
 
-export function rewriteMediaPlaylist(text: string, baseUrl: string): string {
+export function rewriteMediaPlaylist(
+  text: string,
+  baseUrl: string,
+  toSegmentUrl?: (absUrl: string) => string,
+): string {
   return text
     .split("\n")
     .map((line) => {
@@ -85,8 +89,9 @@ export function rewriteMediaPlaylist(text: string, baseUrl: string): string {
         }
         return line;
       }
-      // Segment URI → absolute origin URL.
-      return resolve(trimmed, baseUrl);
+      // Segment URI → proxied through server (when toSegmentUrl provided) or absolute origin URL.
+      const abs = resolve(trimmed, baseUrl);
+      return toSegmentUrl ? toSegmentUrl(abs) : abs;
     })
     .join("\n");
 }

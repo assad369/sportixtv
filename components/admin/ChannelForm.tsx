@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/Button";
 import { XIcon } from "@/components/icons";
 
 export interface EditableSource {
+  type: "hls" | "iframe";
   label: string;
   url: string;
   referer: string;
   userAgent: string;
+  iframeUrl: string;
   active: boolean;
 }
 
@@ -30,10 +32,12 @@ export interface ChannelFormInitial {
 }
 
 const EMPTY_SOURCE: EditableSource = {
+  type: "hls",
   label: "",
   url: "",
   referer: "",
   userAgent: "",
+  iframeUrl: "",
   active: true,
 };
 
@@ -167,7 +171,23 @@ export function ChannelForm({
                     required
                   />
                 </div>
-                <div className="flex items-end pb-2">
+                <div>
+                  <label className="mb-1 block text-xs text-ink-muted">
+                    Type *
+                  </label>
+                  <Select
+                    value={s.type}
+                    onChange={(e) =>
+                      updateSource(i, {
+                        type: e.target.value as "hls" | "iframe",
+                      })
+                    }
+                  >
+                    <option value="hls">m3u8 / HLS</option>
+                    <option value="iframe">iFrame Embed</option>
+                  </Select>
+                </div>
+                <div className="flex items-center sm:col-span-2">
                   <label className="flex items-center gap-2 text-sm">
                     <input
                       type="checkbox"
@@ -180,41 +200,63 @@ export function ChannelForm({
                     Active
                   </label>
                 </div>
-                <div className="sm:col-span-2">
-                  <label className="mb-1 block text-xs text-ink-muted">
-                    m3u8 URL *
-                  </label>
-                  <Input
-                    value={s.url}
-                    onChange={(e) => updateSource(i, { url: e.target.value })}
-                    type="url"
-                    placeholder="https://example.com/stream/index.m3u8"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-ink-muted">
-                    Required Referer (optional)
-                  </label>
-                  <Input
-                    value={s.referer}
-                    onChange={(e) =>
-                      updateSource(i, { referer: e.target.value })
-                    }
-                    placeholder="https://origin-site.com/"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-ink-muted">
-                    Required User-Agent (optional)
-                  </label>
-                  <Input
-                    value={s.userAgent}
-                    onChange={(e) =>
-                      updateSource(i, { userAgent: e.target.value })
-                    }
-                  />
-                </div>
+
+                {s.type === "hls" ? (
+                  <>
+                    <div className="sm:col-span-2">
+                      <label className="mb-1 block text-xs text-ink-muted">
+                        m3u8 URL *
+                      </label>
+                      <Input
+                        value={s.url}
+                        onChange={(e) =>
+                          updateSource(i, { url: e.target.value })
+                        }
+                        type="url"
+                        placeholder="https://example.com/stream/index.m3u8"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs text-ink-muted">
+                        Required Referer (optional)
+                      </label>
+                      <Input
+                        value={s.referer}
+                        onChange={(e) =>
+                          updateSource(i, { referer: e.target.value })
+                        }
+                        placeholder="https://origin-site.com/"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs text-ink-muted">
+                        Required User-Agent (optional)
+                      </label>
+                      <Input
+                        value={s.userAgent}
+                        onChange={(e) =>
+                          updateSource(i, { userAgent: e.target.value })
+                        }
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="sm:col-span-2">
+                    <label className="mb-1 block text-xs text-ink-muted">
+                      iFrame URL *
+                    </label>
+                    <Input
+                      value={s.iframeUrl}
+                      onChange={(e) =>
+                        updateSource(i, { iframeUrl: e.target.value })
+                      }
+                      type="url"
+                      placeholder="https://example.com/embed/player"
+                      required
+                    />
+                  </div>
+                )}
               </div>
             </div>
           ))}

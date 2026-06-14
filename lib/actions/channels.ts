@@ -10,13 +10,22 @@ import { encryptSecret } from "@/lib/crypto";
 import { requireSession } from "@/lib/auth/session";
 import { slugify } from "@/lib/utils";
 
-const sourceSchema = z.object({
-  label: z.string().min(1).max(50),
-  url: z.string().url().max(2000),
-  referer: z.string().max(2000).optional().or(z.literal("")),
-  userAgent: z.string().max(500).optional().or(z.literal("")),
-  active: z.boolean(),
-});
+const sourceSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("hls"),
+    label: z.string().min(1).max(50),
+    url: z.string().url().max(2000),
+    referer: z.string().max(2000).optional().or(z.literal("")),
+    userAgent: z.string().max(500).optional().or(z.literal("")),
+    active: z.boolean(),
+  }),
+  z.object({
+    type: z.literal("iframe"),
+    label: z.string().min(1).max(50),
+    iframeUrl: z.string().url().max(2000),
+    active: z.boolean(),
+  }),
+]);
 
 const channelSchema = z.object({
   id: z.string().optional().or(z.literal("")),
@@ -61,14 +70,26 @@ export async function upsertChannel(formData: FormData): Promise<void> {
   if (!slug) throw new Error("Could not derive a slug");
   const now = new Date();
 
-  const sources: ChannelSource[] = parsed.sources.map((s, i) => ({
-    label: s.label,
-    urlEnc: encryptSecret(s.url),
-    refererEnc: s.referer ? encryptSecret(s.referer) : null,
-    userAgentEnc: s.userAgent ? encryptSecret(s.userAgent) : null,
-    order: i,
-    active: s.active,
-  }));
+  const sources: ChannelSource[] = parsed.sources.map((s, i) => {
+    if (s.type === "iframe") {
+      return {
+        type: "iframe" as const,
+        label: s.label,
+        iframeUrlEnc: encryptSecret(s.iframeUrl),
+        order: i,
+        active: s.active,
+      };
+    }
+    return {
+      type: "hls" as const,
+      label: s.label,
+      urlEnc: encryptSecret(s.url),
+      refererEnc: s.referer ? encryptSecret(s.referer) : null,
+      userAgentEnc: s.userAgent ? encryptSecret(s.userAgent) : null,
+      order: i,
+      active: s.active,
+    };
+  });
 
   const doc = {
     name: parsed.name,

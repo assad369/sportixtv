@@ -22,6 +22,8 @@ export interface ChannelLite {
   country?: string;
   /** Labels of active sources, in admin order — for the source switcher UI. */
   sourceLabels: string[];
+  /** Types of active sources, parallel to sourceLabels. */
+  sourceTypes: ("hls" | "iframe")[];
 }
 
 function toLite(doc: Partial<ChannelDoc> & { _id: ObjectId }): ChannelLite {
@@ -40,6 +42,10 @@ function toLite(doc: Partial<ChannelDoc> & { _id: ObjectId }): ChannelLite {
       .filter((s) => s.active)
       .sort((a, b) => a.order - b.order)
       .map((s) => s.label),
+    sourceTypes: (doc.sources ?? [])
+      .filter((s) => s.active)
+      .sort((a, b) => a.order - b.order)
+      .map((s) => s.type ?? "hls"),
   };
 }
 

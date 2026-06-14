@@ -16,6 +16,7 @@ interface Props {
   channelId: string;
   channelName: string;
   sourceLabels: string[];
+  sourceTypes: ("hls" | "iframe")[];
   poster?: string;
 }
 
@@ -27,10 +28,15 @@ interface QualityLevel {
   bitrate: number;
 }
 
-async function fetchTokenUrl(
+type SourceResult =
+  | { type: "hls"; url: string }
+  | { type: "iframe"; url: string }
+  | null;
+
+async function fetchSource(
   channelId: string,
   sourceIndex: number,
-): Promise<string | null> {
+): Promise<SourceResult> {
   try {
     const res = await fetch("/api/stream/token", {
       method: "POST",
@@ -38,19 +44,20 @@ async function fetchTokenUrl(
       body: JSON.stringify({ channelId, sourceIndex }),
     });
     if (!res.ok) return null;
-    return (await res.json()).url ?? null;
+    const data = await res.json();
+    if (data.type === "iframe" && data.url) return { type: "iframe", url: data.url };
+    if (data.url) return { type: "hls", url: data.url };
+    return null;
   } catch {
     return null;
   }
 }
 
-export function LivePlayer({ channelId, channelName, sourceLabels, poster }: Props) {
+export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, poster }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const retriedRef = useRef(false);
-  // Lets async hls.js callbacks re-trigger a load without a circular
-  // reference to the not-yet-declared `load` callback.
   const loadRef = useRef<(index: number) => void>(() => {});
 
   const [state, setState] = useState<PlayerState>("loading");
@@ -61,6 +68,7 @@ export function LivePlayer({ channelId, channelName, sourceLabels, poster }: Pro
   const [showQuality, setShowQuality] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [iframeUrl, setIframeUrl] = useState<string | null>(null);
 
   const destroy = useCallback(() => {
     hlsRef.current?.destroy();
@@ -81,13 +89,13 @@ export function LivePlayer({ channelId, channelName, sourceLabels, poster }: Pro
   const load = useCallback(
     async (index: number) => {
       const video = videoRef.current;
-      if (!video) return;
       destroy();
+      setIframeUrl(null);
       setState("loading");
       setLevels([]);
 
-      const url = await fetchTokenUrl(channelId, index);
-      if (!url) {
+      const result = await fetchSource(channelId, index);
+      if (!result) {
         if (!retriedRef.current) {
           retriedRef.current = true;
           failover();
@@ -96,6 +104,16 @@ export function LivePlayer({ channelId, channelName, sourceLabels, poster }: Pro
         }
         return;
       }
+
+      if (result.type === "iframe") {
+        setIframeUrl(result.url);
+        setState("playing");
+        return;
+      }
+
+      // HLS path
+      if (!video) return;
+      const url = result.url;
 
       const HlsMod = (await import("hls.js")).default;
       if (HlsMod.isSupported()) {
@@ -119,7 +137,6 @@ export function LivePlayer({ channelId, channelName, sourceLabels, poster }: Pro
             })),
           );
           video.play().catch(() => {
-            // Autoplay blocked with sound — retry muted.
             video.muted = true;
             setMuted(true);
             video.play().catch(() => setState("paused"));
@@ -138,7 +155,6 @@ export function LivePlayer({ channelId, channelName, sourceLabels, poster }: Pro
             return;
           }
           if (data.type === HlsMod.ErrorTypes.NETWORK_ERROR && !retriedRef.current) {
-            // Token may have expired before playback started — one fresh try.
             retriedRef.current = true;
             loadRef.current(index);
             return;
@@ -147,7 +163,6 @@ export function LivePlayer({ channelId, channelName, sourceLabels, poster }: Pro
           failover();
         });
       } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        // Safari/iOS native HLS — the token URL works the same way.
         video.src = url;
         video.play().catch(() => {
           video.muted = true;
@@ -170,7 +185,6 @@ export function LivePlayer({ channelId, channelName, sourceLabels, poster }: Pro
     return destroy;
   }, [sourceIndex, load, destroy]);
 
-  // Auto-hide controls while playing.
   const pokeControls = useCallback(() => {
     setControlsVisible(true);
     if (hideTimer.current) clearTimeout(hideTimer.current);
@@ -217,7 +231,6 @@ export function LivePlayer({ channelId, channelName, sourceLabels, poster }: Pro
       document.exitFullscreen().catch(() => undefined);
     } else {
       el.requestFullscreen().catch(() => {
-        // iOS Safari: fall back to native video fullscreen.
         const video = videoRef.current as HTMLVideoElement & {
           webkitEnterFullscreen?: () => void;
         };
@@ -240,18 +253,28 @@ export function LivePlayer({ channelId, channelName, sourceLabels, poster }: Pro
         onTouchStart={pokeControls}
         className="group relative aspect-video w-full overflow-hidden rounded-xl bg-black"
       >
-        <video
-          ref={videoRef}
-          poster={poster}
-          playsInline
-          onPlaying={() => setState("playing")}
-          onPause={() => setState("paused")}
-          onWaiting={() => setState("loading")}
-          onClick={togglePlay}
-          className="h-full w-full"
-        />
+        {iframeUrl ? (
+          <iframe
+            src={iframeUrl}
+            className="h-full w-full border-0"
+            allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+            allowFullScreen
+            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+          />
+        ) : (
+          <video
+            ref={videoRef}
+            poster={poster}
+            playsInline
+            onPlaying={() => setState("playing")}
+            onPause={() => setState("paused")}
+            onWaiting={() => setState("loading")}
+            onClick={togglePlay}
+            className="h-full w-full"
+          />
+        )}
 
-        {state === "loading" && (
+        {!iframeUrl && state === "loading" && (
           <div className="pointer-events-none absolute inset-0 grid place-items-center">
             <div className="size-12 animate-spin rounded-full border-4 border-white/20 border-t-brand" />
           </div>
@@ -274,98 +297,100 @@ export function LivePlayer({ channelId, channelName, sourceLabels, poster }: Pro
           </div>
         )}
 
-        {/* Controls bar */}
-        <div
-          className={cn(
-            "absolute inset-x-0 bottom-0 flex items-center gap-3 bg-gradient-to-t from-black/80 to-transparent px-3 pb-2 pt-8 transition-opacity",
-            controlsVisible || state !== "playing"
-              ? "opacity-100"
-              : "opacity-0",
-          )}
-        >
-          <button
-            onClick={togglePlay}
-            aria-label={state === "playing" ? "Pause" : "Play"}
-            className="text-white hover:text-brand"
-          >
-            {state === "playing" ? (
-              <PauseIcon className="size-6" />
-            ) : (
-              <PlayIcon className="size-6" />
+        {/* Controls bar — only shown for HLS sources */}
+        {!iframeUrl && (
+          <div
+            className={cn(
+              "absolute inset-x-0 bottom-0 flex items-center gap-3 bg-gradient-to-t from-black/80 to-transparent px-3 pb-2 pt-8 transition-opacity",
+              controlsVisible || state !== "playing"
+                ? "opacity-100"
+                : "opacity-0",
             )}
-          </button>
-
-          <button
-            onClick={toggleMute}
-            aria-label={muted ? "Unmute" : "Mute"}
-            className="text-white hover:text-brand"
           >
-            <VolumeIcon className="size-5" muted={muted} />
-          </button>
-
-          <button
-            onClick={goToLive}
-            className="flex items-center gap-1.5 rounded bg-live/90 px-2 py-0.5 text-[11px] font-bold uppercase text-white"
-          >
-            <span className="size-1.5 rounded-full bg-white animate-pulse-live" />
-            Live
-          </button>
-
-          <div className="ml-auto flex items-center gap-3">
-            {levels.length > 1 && (
-              <div className="relative">
-                <button
-                  onClick={() => setShowQuality((s) => !s)}
-                  aria-label="Quality"
-                  className="flex items-center gap-1 text-white hover:text-brand"
-                >
-                  <SettingsIcon className="size-5" />
-                  <span className="text-xs">
-                    {currentLevel === -1
-                      ? "Auto"
-                      : `${levels[currentLevel]?.height ?? "?"}p`}
-                  </span>
-                </button>
-                {showQuality && (
-                  <div className="absolute bottom-8 right-0 min-w-24 rounded-lg border border-white/10 bg-black/90 py-1 text-sm">
-                    <button
-                      onClick={() => setQuality(-1)}
-                      className={cn(
-                        "block w-full px-4 py-1.5 text-left hover:bg-white/10",
-                        currentLevel === -1 ? "text-brand" : "text-white",
-                      )}
-                    >
-                      Auto
-                    </button>
-                    {[...levels]
-                      .sort((a, b) => b.height - a.height)
-                      .map((l) => (
-                        <button
-                          key={l.index}
-                          onClick={() => setQuality(l.index)}
-                          className={cn(
-                            "block w-full px-4 py-1.5 text-left hover:bg-white/10",
-                            currentLevel === l.index
-                              ? "text-brand"
-                              : "text-white",
-                          )}
-                        >
-                          {l.height}p
-                        </button>
-                      ))}
-                  </div>
-                )}
-              </div>
-            )}
             <button
-              onClick={toggleFullscreen}
-              aria-label="Fullscreen"
+              onClick={togglePlay}
+              aria-label={state === "playing" ? "Pause" : "Play"}
               className="text-white hover:text-brand"
             >
-              <MaximizeIcon className="size-5" />
+              {state === "playing" ? (
+                <PauseIcon className="size-6" />
+              ) : (
+                <PlayIcon className="size-6" />
+              )}
             </button>
+
+            <button
+              onClick={toggleMute}
+              aria-label={muted ? "Unmute" : "Mute"}
+              className="text-white hover:text-brand"
+            >
+              <VolumeIcon className="size-5" muted={muted} />
+            </button>
+
+            <button
+              onClick={goToLive}
+              className="flex items-center gap-1.5 rounded bg-live/90 px-2 py-0.5 text-[11px] font-bold uppercase text-white"
+            >
+              <span className="size-1.5 rounded-full bg-white animate-pulse-live" />
+              Live
+            </button>
+
+            <div className="ml-auto flex items-center gap-3">
+              {levels.length > 1 && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowQuality((s) => !s)}
+                    aria-label="Quality"
+                    className="flex items-center gap-1 text-white hover:text-brand"
+                  >
+                    <SettingsIcon className="size-5" />
+                    <span className="text-xs">
+                      {currentLevel === -1
+                        ? "Auto"
+                        : `${levels[currentLevel]?.height ?? "?"}p`}
+                    </span>
+                  </button>
+                  {showQuality && (
+                    <div className="absolute bottom-8 right-0 min-w-24 rounded-lg border border-white/10 bg-black/90 py-1 text-sm">
+                      <button
+                        onClick={() => setQuality(-1)}
+                        className={cn(
+                          "block w-full px-4 py-1.5 text-left hover:bg-white/10",
+                          currentLevel === -1 ? "text-brand" : "text-white",
+                        )}
+                      >
+                        Auto
+                      </button>
+                      {[...levels]
+                        .sort((a, b) => b.height - a.height)
+                        .map((l) => (
+                          <button
+                            key={l.index}
+                            onClick={() => setQuality(l.index)}
+                            className={cn(
+                              "block w-full px-4 py-1.5 text-left hover:bg-white/10",
+                              currentLevel === l.index
+                                ? "text-brand"
+                                : "text-white",
+                            )}
+                          >
+                            {l.height}p
+                          </button>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              <button
+                onClick={toggleFullscreen}
+                aria-label="Fullscreen"
+                className="text-white hover:text-brand"
+              >
+                <MaximizeIcon className="size-5" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Source switcher */}

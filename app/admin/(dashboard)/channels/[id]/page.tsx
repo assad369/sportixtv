@@ -23,10 +23,12 @@ export default async function EditChannelPage({
 
   // Decrypted only here, inside the session-gated, never-cached admin tree.
   const sources = channel.sources.map((s) => ({
+    type: s.type ?? "hls",
     label: s.label,
-    url: decryptSecret(s.urlEnc),
+    url: s.urlEnc ? decryptSecret(s.urlEnc) : "",
     referer: s.refererEnc ? decryptSecret(s.refererEnc) : "",
     userAgent: s.userAgentEnc ? decryptSecret(s.userAgentEnc) : "",
+    iframeUrl: s.iframeUrlEnc ? decryptSecret(s.iframeUrlEnc) : "",
     active: s.active,
   }));
 

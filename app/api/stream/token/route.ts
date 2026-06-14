@@ -5,6 +5,7 @@ import {
   clientBindingFromRequest,
   issueInitialToken,
 } from "@/lib/stream-token";
+import { decryptSecret } from "@/lib/crypto";
 import { rateLimit } from "@/lib/rate-limit";
 
 const bodySchema = z.object({
@@ -32,17 +33,29 @@ export async function POST(request: Request) {
   const col = await channels();
   const channel = await col.findOne(
     { _id: new ObjectId(body.channelId), isActive: true },
-    { projection: { "sources.active": 1 } },
+    { projection: { "sources.type": 1, "sources.active": 1, "sources.iframeUrlEnc": 1 } },
   );
   const source = channel?.sources?.[body.sourceIndex];
   if (!source || !source.active) {
     return Response.json({ error: "Source not available" }, { status: 404 });
   }
 
+  // Iframe sources return the decrypted URL directly — no HLS token flow.
+  if (source.type === "iframe") {
+    if (!source.iframeUrlEnc) {
+      return Response.json({ error: "Source not available" }, { status: 404 });
+    }
+    const iframeUrl = decryptSecret(source.iframeUrlEnc);
+    return Response.json(
+      { type: "iframe", url: iframeUrl },
+      { headers: { "Cache-Control": "no-store" } },
+    );
+  }
+
   const binding = clientBindingFromRequest(request);
   const token = issueInitialToken(body.channelId, body.sourceIndex, binding);
   return Response.json(
-    { url: `/api/stream/play?t=${encodeURIComponent(token)}` },
+    { type: "hls", url: `/api/stream/play?t=${encodeURIComponent(token)}` },
     { headers: { "Cache-Control": "no-store" } },
   );
 }

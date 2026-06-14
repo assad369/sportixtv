@@ -86,7 +86,9 @@ export async function GET(request: Request) {
     });
   }
 
-  return new Response(rewriteMediaPlaylist(text, baseUrl), {
+  const toSegmentUrl = (absUrl: string) =>
+    `/api/stream/segment?t=${encodeURIComponent(token)}&url=${encodeURIComponent(absUrl)}`;
+  return new Response(rewriteMediaPlaylist(text, baseUrl, toSegmentUrl), {
     headers: M3U8_HEADERS,
   });
 }

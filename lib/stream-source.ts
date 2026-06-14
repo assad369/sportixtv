@@ -24,7 +24,7 @@ export async function getDecryptedSource(
     isActive: true,
   });
   const source = channel?.sources?.[sourceIndex];
-  if (!source || !source.active) return null;
+  if (!source || !source.active || !source.urlEnc) return null;
   return {
     url: decryptSecret(source.urlEnc),
     referer: source.refererEnc ? decryptSecret(source.refererEnc) : undefined,

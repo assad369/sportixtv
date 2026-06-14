@@ -56,6 +56,11 @@ export default async function ChannelPage({ params }: Props) {
                 ? channel.sourceLabels
                 : ["Server 1"]
             }
+            sourceTypes={
+              channel.sourceTypes.length > 0
+                ? channel.sourceTypes
+                : ["hls"]
+            }
             poster={channel.logoUrl}
           />
           <ViewBeacon channelId={channel.id} channelSlug={channel.slug} />
