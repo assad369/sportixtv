@@ -1,0 +1,48 @@
+# SportixTV — Live Sports & TV Streaming
+
+> SportixTV (sportixtv.online) is a free live sports and TV streaming platform. Watch cricket, football, basketball, tennis, news, entertainment, and more — all in HD, no registration required.
+
+## What is SportixTV?
+
+SportixTV is a free online streaming directory that aggregates publicly available live TV channels and sports events. Users can watch live matches and TV channels from any device — mobile, tablet, desktop, or smart TV — without signup or subscription.
+
+## Content Available
+
+- **Live Sports**: Cricket (IPL, PSL, international), Football (Premier League, La Liga, UEFA Champions League), Basketball (NBA), Tennis, Boxing, MMA, Formula 1, Rugby
+- **Live TV Channels**: News, entertainment, movies, kids' channels, music channels
+- **Sports Events**: Live match schedules with team vs team match listings
+- **Categories**: Sports, News, Entertainment, Movies, Kids, Music, Regional
+
+## Key Pages
+
+- Homepage: https://sportixtv.online — Browse all live channels and events
+- Categories: https://sportixtv.online/categories — All channel categories
+- Events: https://sportixtv.online/events — Live and upcoming sports matches
+- About: https://sportixtv.online/about — About SportixTV
+- Contact: https://sportixtv.online/contact — Contact us
+
+## Structured Data
+
+SportixTV uses Schema.org structured data including:
+- WebSite with SearchAction (sitelinks search box)
+- Organization with logo and social links
+- BroadcastService and VideoObject for channels
+- SportsEvent with team competitors for matches
+- BreadcrumbList on all pages
+- FAQPage on homepage
+- ItemList on category and events pages
+
+## Technical
+
+- Platform: Next.js (App Router)
+- Streaming: HLS (m3u8) and iframe embeds
+- Performance: Server-side rendered, PWA-enabled
+- Mobile: Fully responsive
+
+## Disclaimer
+
+SportixTV does not host any media content. All streams are provided by third-party sources publicly available on the internet. For content removal, see: https://sportixtv.online/dmca
+
+## Contact
+
+For inquiries, visit: https://sportixtv.online/contact

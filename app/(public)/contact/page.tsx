@@ -3,6 +3,8 @@ import { getSettings } from "@/lib/data/settings";
 
 export const metadata: Metadata = {
   title: "Contact Us",
+  description:
+    "Get in touch with SportixTV for support, broken stream reports, advertising inquiries, or general questions. We respond within 24 hours.",
   alternates: { canonical: "/contact" },
 };
 

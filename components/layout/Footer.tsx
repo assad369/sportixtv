@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { getSettings } from "@/lib/data/settings";
 import { TvIcon } from "@/components/icons";
+import { CopyrightYear } from "@/components/layout/CopyrightYear";
 
 const SOCIAL_LABELS: Record<string, string> = {
   facebook: "Facebook",
@@ -12,6 +14,7 @@ const SOCIAL_LABELS: Record<string, string> = {
 export async function Footer() {
   const settings = await getSettings();
   const socials = Object.entries(settings.socialLinks).filter(([, v]) => v);
+
   return (
     <footer className="mt-12 border-t border-white/5 bg-surface pb-20 md:pb-0">
       <div className="mx-auto max-w-7xl px-4 py-10">
@@ -49,6 +52,12 @@ export async function Footer() {
               <Link href="/contact" className="font-medium text-ink-muted transition-colors hover:text-ink">
                 Contact
               </Link>
+              <Link href="/privacy" className="font-medium text-ink-muted transition-colors hover:text-ink">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="font-medium text-ink-muted transition-colors hover:text-ink">
+                Terms of Service
+              </Link>
               <Link href="/dmca" className="font-medium text-ink-muted transition-colors hover:text-ink">
                 DMCA
               </Link>
@@ -76,7 +85,7 @@ export async function Footer() {
 
         <div className="mt-10 flex flex-col items-center gap-1 border-t border-white/5 pt-6">
           <p className="text-xs text-ink-faint">
-            © {settings.siteName}. All rights reserved.
+            © <Suspense fallback="2025"><CopyrightYear /></Suspense> {settings.siteName}. All rights reserved.
           </p>
         </div>
       </div>

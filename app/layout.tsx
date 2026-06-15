@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { getSettings } from "@/lib/data/settings";
 import { SwRegister } from "@/components/pwa/SwRegister";
@@ -18,6 +19,8 @@ const geistMono = Geist_Mono({
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const logoUrl = settings.logoUrl || `${siteUrl}/logo/sportixtv_logo.png`;
+  const ogImage = { url: logoUrl, width: 1200, height: 630, alt: settings.siteName };
   return {
     metadataBase: new URL(siteUrl),
     title: {
@@ -27,18 +30,42 @@ export async function generateMetadata(): Promise<Metadata> {
     description: settings.seoDescription,
     keywords: settings.seoKeywords,
     applicationName: settings.siteName,
+    authors: [{ name: settings.siteName, url: siteUrl }],
+    creator: settings.siteName,
+    publisher: settings.siteName,
+    category: "Sports & Entertainment Streaming",
+    referrer: "origin-when-cross-origin",
+    alternates: { canonical: siteUrl },
     openGraph: {
       type: "website",
+      url: siteUrl,
       siteName: settings.siteName,
       title: settings.seoTitle,
       description: settings.seoDescription,
+      locale: "en_US",
+      images: [ogImage],
     },
     twitter: {
       card: "summary_large_image",
       title: settings.seoTitle,
       description: settings.seoDescription,
+      site: settings.socialLinks.twitter || undefined,
+      images: [ogImage],
     },
-    robots: { index: true, follow: true },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+    verification: {
+      google: process.env.GOOGLE_SITE_VERIFICATION,
+    },
   };
 }
 
@@ -77,7 +104,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         {children}
         <SwRegister />
-        <MonatagPopunder />
+        <Suspense fallback={null}>
+          <MonatagPopunder />
+        </Suspense>
       </body>
     </html>
   );

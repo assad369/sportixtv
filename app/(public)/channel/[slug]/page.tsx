@@ -22,13 +22,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const channel = await getChannelBySlug(slug);
   if (!channel) return {};
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const description = `Watch ${channel.name} live stream online for free in HD. ${channel.description || "Live 24/7 streaming available."}`.slice(0, 160);
+  const ogImage = { url: channel.logoUrl, alt: `${channel.name} live stream` };
   return {
-    title: `Watch ${channel.name} Live`,
-    description: `Watch ${channel.name} live stream online for free in HD. ${channel.description}`.slice(
-      0,
-      160,
-    ),
+    title: `Watch ${channel.name} Live — Free HD Stream`,
+    description,
+    keywords: [`${channel.name} live`, `${channel.name} stream`, "live tv", "free streaming", "HD"],
     alternates: { canonical: `/channel/${slug}` },
+    openGraph: {
+      type: "video.other",
+      title: `Watch ${channel.name} Live`,
+      description,
+      url: `${siteUrl}/channel/${slug}`,
+      images: [ogImage],
+      siteName: "SportixTV",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Watch ${channel.name} Live`,
+      description,
+      images: [ogImage],
+    },
   };
 }
 

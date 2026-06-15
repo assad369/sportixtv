@@ -11,7 +11,7 @@ import { LiveNowStrip } from "@/components/events/LiveNowStrip";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { ChevronRightIcon } from "@/components/icons";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { websiteJsonLd } from "@/lib/seo/jsonld";
+import { websiteJsonLd, homePageFaqJsonLd } from "@/lib/seo/jsonld";
 import { getSettings } from "@/lib/data/settings";
 
 async function CategorySection({
@@ -57,7 +57,10 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col gap-10">
       <JsonLd data={websiteJsonLd(settings)} />
-      <h1 className="sr-only">Watch Live Sports &amp; TV Channels Online</h1>
+      <JsonLd data={homePageFaqJsonLd(settings.siteName)} />
+      <h1 className="sr-only">
+        Watch Live Sports &amp; TV Channels Online — {settings.siteName}
+      </h1>
 
       {/* Live & Upcoming Events */}
       <LiveNowStrip />

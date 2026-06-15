@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { getSettings } from "@/lib/data/settings";
 
 export const metadata: Metadata = {
-  title: "DMCA Policy",
+  title: "DMCA / Content Removal Policy",
+  description:
+    "SportixTV DMCA policy and content removal process. We respect intellectual property rights and process valid takedown notices within 48 hours.",
   alternates: { canonical: "/dmca" },
 };
 
@@ -38,8 +40,12 @@ export default async function DmcaPage() {
           </li>
         </ul>
         <p>
-          Send notices via our contact channels. Valid requests are processed
-          within 48 hours and the corresponding links removed.
+          Send notices via our{" "}
+          <a href="/contact" className="text-brand hover:underline">
+            contact channels
+          </a>
+          . Valid requests are processed within 48 hours and the corresponding
+          links removed.
         </p>
       </div>
     </article>
