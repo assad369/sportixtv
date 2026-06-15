@@ -9,6 +9,7 @@ export function ChannelCard({ channel }: { channel: ChannelLite }) {
   return (
     <Link
       href={`/channel/${channel.slug}`}
+      aria-label={`Watch ${channel.name} live stream`}
       className="card-glow group relative flex flex-col items-center overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-b from-surface-2 to-surface p-4 transition-all duration-300 hover:-translate-y-1 hover:border-brand/20"
     >
       {/* Hover glow overlay */}
@@ -21,7 +22,7 @@ export function ChannelCard({ channel }: { channel: ChannelLite }) {
       <div className="relative mt-2 size-20 overflow-hidden rounded-xl ring-2 ring-white/5 transition-all duration-300 group-hover:ring-brand/30 sm:size-24">
         <Image
           src={channel.logoUrl}
-          alt={`${channel.name} logo`}
+          alt={`${channel.name} live TV channel`}
           fill
           sizes="96px"
           className="object-cover transition-transform duration-500 group-hover:scale-110"

@@ -89,7 +89,7 @@ export default async function ChannelPage({ params }: Props) {
                 <div className="relative shrink-0 size-14 overflow-hidden rounded-xl ring-2 ring-white/8">
                   <Image
                     src={channel.logoUrl}
-                    alt={`${channel.name} logo`}
+                    alt={`${channel.name} live TV channel`}
                     fill
                     sizes="56px"
                     className="object-cover"
@@ -104,11 +104,10 @@ export default async function ChannelPage({ params }: Props) {
                     <EyeIcon className="size-3.5" />
                     {formatViews(channel.viewCount)} views
                   </p>
-                  {channel.description && (
-                    <p className="mt-2 text-sm leading-relaxed text-ink-muted">
-                      {channel.description}
-                    </p>
-                  )}
+                  <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+                    {channel.description ||
+                      `Watch ${channel.name} live online for free in HD quality. Stream ${channel.name} 24/7 on any device — mobile, tablet, or desktop. No sign-up required.`}
+                  </p>
                 </div>
               </div>
 

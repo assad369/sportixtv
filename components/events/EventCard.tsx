@@ -40,7 +40,7 @@ function TeamBlock({ team }: { team?: { name: string; logoUrl?: string } }) {
         <div className="size-11 overflow-hidden rounded-full ring-2 ring-white/8">
           <Image
             src={team.logoUrl}
-            alt=""
+            alt={`${team.name} logo`}
             width={44}
             height={44}
             className="size-full object-cover"
@@ -59,10 +59,15 @@ function TeamBlock({ team }: { team?: { name: string; logoUrl?: string } }) {
 export function EventCard({ event }: { event: EventLite }) {
   const { status, now } = useEventStatus(event);
   const start = new Date(event.startsAt);
+  const linkLabel =
+    event.teamA && event.teamB
+      ? `Watch ${event.teamA.name} vs ${event.teamB.name} live${event.league ? ` — ${event.league}` : ""}`
+      : `Watch ${event.title} live`;
 
   return (
     <Link
       href={`/event/${event.slug}`}
+      aria-label={linkLabel}
       className="card-glow group flex w-64 shrink-0 flex-col overflow-hidden rounded-2xl border border-white/5 bg-gradient-to-b from-surface-2 to-surface transition-all duration-300 hover:-translate-y-1 hover:border-brand/20 sm:w-72"
     >
       {/* Status accent line */}

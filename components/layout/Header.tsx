@@ -21,7 +21,7 @@ export async function Header() {
           {settings.logoUrl ? (
             <Image
               src={settings.logoUrl}
-              alt={settings.siteName}
+              alt={`${settings.siteName} — Live Sports & TV Streaming`}
               width={36}
               height={36}
               className="size-9 rounded-xl object-cover"

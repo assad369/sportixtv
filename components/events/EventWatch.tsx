@@ -76,15 +76,20 @@ export function EventWatch({
           </div>
 
           {event.teamA && event.teamB ? (
-            <div className="mt-8 flex items-center justify-center gap-6 sm:gap-16">
-              <Team team={event.teamA} />
-              <div className="flex flex-col items-center gap-1.5 px-2">
-                <span className="text-3xl font-black tracking-tight text-ink-faint/40">
-                  VS
-                </span>
+            <>
+              <h1 className="sr-only">
+                {event.teamA.name} vs {event.teamB.name}{event.league ? ` — ${event.league}` : ""} Live Stream
+              </h1>
+              <div className="mt-8 flex items-center justify-center gap-6 sm:gap-16">
+                <Team team={event.teamA} />
+                <div className="flex flex-col items-center gap-1.5 px-2">
+                  <span className="text-3xl font-black tracking-tight text-ink-faint/40" aria-hidden="true">
+                    VS
+                  </span>
+                </div>
+                <Team team={event.teamB} />
               </div>
-              <Team team={event.teamB} />
-            </div>
+            </>
           ) : (
             <h1 className="mt-5 text-center text-2xl font-black tracking-tight">
               {event.title}

@@ -21,9 +21,10 @@ export async function LiveNowStrip() {
         </div>
         <Link
           href="/events"
+          aria-label="View all live sports events"
           className="flex items-center gap-1 rounded-xl border border-white/5 px-3 py-1.5 text-xs font-semibold text-ink-muted transition-all hover:border-brand/30 hover:text-brand"
         >
-          All events <ChevronRightIcon className="size-3.5" />
+          All events <ChevronRightIcon className="size-3.5" aria-hidden="true" />
         </Link>
       </div>
       <LiveNowStripClient events={events} />
