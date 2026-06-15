@@ -19,6 +19,7 @@
   --animate-pulse-live: pulse-live 1.6s ease-in-out infinite;
   --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
   --animate-fade-up: fade-up 0.4s ease-out both;
+  --animate-slide-up: slide-up 0.35s cubic-bezier(0.32, 0.72, 0, 1) both;
 
   @keyframes marquee {
     from { transform: translateX(100%); }
@@ -34,6 +35,10 @@
   @keyframes fade-up {
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slide-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
   }
 }
 
