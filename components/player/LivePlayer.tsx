@@ -79,6 +79,7 @@ async function fetchSource(
 
 export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, poster }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const retriedRef = useRef(false);
@@ -114,6 +115,8 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
     async (index: number) => {
       const video = videoRef.current;
       destroy();
+      // Stop any playing iframe before removing it from the DOM
+      if (iframeRef.current) iframeRef.current.src = "about:blank";
       setIframeAttrs(null);
       setState("loading");
       setLevels([]);
@@ -211,7 +214,10 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
 
   useEffect(() => {
     load(sourceIndex);
-    return destroy;
+    return () => {
+      destroy();
+      if (iframeRef.current) iframeRef.current.src = "about:blank";
+    };
   }, [sourceIndex, load, destroy]);
 
   const pokeControls = useCallback(() => {
@@ -284,6 +290,7 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
       >
         {iframeAttrs ? (
           <iframe
+            ref={iframeRef}
             src={iframeAttrs.src}
             className="h-full w-full border-0"
             allow={iframeAttrs.allow ?? "autoplay; fullscreen; encrypted-media; picture-in-picture"}

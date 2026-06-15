@@ -13,6 +13,8 @@ export interface EditableSource {
   referer: string;
   userAgent: string;
   iframeCode: string;
+  iframeInputMode?: "url" | "code";
+  iframeUrl?: string;
   active: boolean;
 }
 
@@ -38,8 +40,20 @@ const EMPTY_SOURCE: EditableSource = {
   referer: "",
   userAgent: "",
   iframeCode: "",
+  iframeInputMode: "url",
+  iframeUrl: "",
   active: true,
 };
+
+function getIframeMode(s: EditableSource): "url" | "code" {
+  if (s.iframeInputMode) return s.iframeInputMode;
+  return s.iframeCode ? "code" : "url";
+}
+
+function buildIframeCode(url: string): string {
+  const escaped = url.replace(/"/g, "&quot;");
+  return `<iframe src="${escaped}" width="100%" height="100%" frameborder="0" scrolling="no" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture"></iframe>`;
+}
 
 export function ChannelForm({
   initial,
@@ -67,7 +81,18 @@ export function ChannelForm({
       className="flex max-w-3xl flex-col gap-5"
     >
       {initial.id && <input type="hidden" name="id" value={initial.id} />}
-      <input type="hidden" name="sources" value={JSON.stringify(sources)} />
+      <input
+        type="hidden"
+        name="sources"
+        value={JSON.stringify(
+          sources.map((s) => {
+            if (s.type === "iframe" && getIframeMode(s) === "url") {
+              return { ...s, iframeCode: s.iframeUrl ? buildIframeCode(s.iframeUrl) : "" };
+            }
+            return s;
+          }),
+        )}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
@@ -242,19 +267,59 @@ export function ChannelForm({
                     </div>
                   </>
                 ) : (
-                  <div className="sm:col-span-2">
-                    <label className="mb-1 block text-xs text-ink-muted">
-                      iFrame HTML Code *
-                    </label>
-                    <Textarea
-                      value={s.iframeCode}
-                      onChange={(e) =>
-                        updateSource(i, { iframeCode: e.target.value })
-                      }
-                      rows={4}
-                      placeholder={'<iframe src="https://example.com/embed/player" width="100%" height="500" allow="autoplay; fullscreen" allowfullscreen></iframe>'}
-                      required
-                    />
+                  <div className="sm:col-span-2 flex flex-col gap-3">
+                    {/* Input mode toggle */}
+                    <div className="flex gap-1 rounded-lg border border-edge bg-surface-2 p-1 w-fit">
+                      {(["url", "code"] as const).map((mode) => (
+                        <button
+                          key={mode}
+                          type="button"
+                          onClick={() => updateSource(i, { iframeInputMode: mode })}
+                          className={`rounded px-3 py-1 text-xs font-medium transition-colors ${
+                            getIframeMode(s) === mode
+                              ? "bg-brand text-white"
+                              : "text-ink-muted hover:text-ink"
+                          }`}
+                        >
+                          {mode === "url" ? "Direct URL" : "Embed Code"}
+                        </button>
+                      ))}
+                    </div>
+
+                    {getIframeMode(s) === "url" ? (
+                      <div>
+                        <label className="mb-1 block text-xs text-ink-muted">
+                          Player URL *
+                        </label>
+                        <Input
+                          value={s.iframeUrl ?? ""}
+                          onChange={(e) =>
+                            updateSource(i, { iframeUrl: e.target.value })
+                          }
+                          type="url"
+                          placeholder="https://example.com/embed/player"
+                          required
+                        />
+                        <p className="mt-1 text-xs text-ink-faint">
+                          Direct link to the embed player page. Will be wrapped in an iframe automatically.
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="mb-1 block text-xs text-ink-muted">
+                          iFrame HTML Code *
+                        </label>
+                        <Textarea
+                          value={s.iframeCode}
+                          onChange={(e) =>
+                            updateSource(i, { iframeCode: e.target.value })
+                          }
+                          rows={4}
+                          placeholder={'<iframe src="https://example.com/embed/player" width="100%" height="500" allow="autoplay; fullscreen" allowfullscreen></iframe>'}
+                          required
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
