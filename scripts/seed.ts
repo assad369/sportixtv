@@ -65,6 +65,23 @@ async function main() {
   await db.collection("events").createIndexes([
     { key: { slug: 1 }, unique: true },
     { key: { startsAt: 1 } },
+    // Idempotency key for autopilot upserts (manual events omit externalRef).
+    { key: { externalRef: 1 }, unique: true, sparse: true },
+    // Cross-provider dedupe lookups.
+    { key: { physicalKey: 1 }, sparse: true },
+  ]);
+  await db
+    .collection("fixtureSources")
+    .createIndexes([{ key: { adapter: 1 } }, { key: { enabled: 1 } }]);
+  await db.collection("leagueChannelMaps").createIndexes([
+    { key: { enabled: 1, priority: -1 } },
+    { key: { "match.league": 1 } },
+  ]);
+  await db.collection("syncRuns").createIndexes([
+    { key: { startedAt: -1 } },
+    { key: { sourceId: 1, startedAt: -1 } },
+    // Auto-expire run logs after 30 days.
+    { key: { startedAt: 1 }, expireAfterSeconds: 60 * 60 * 24 * 30 },
   ]);
   await db
     .collection("adSpots")

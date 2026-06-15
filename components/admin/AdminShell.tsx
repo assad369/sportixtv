@@ -12,6 +12,7 @@ const NAV = [
   { href: "/admin/channels", label: "Channels" },
   { href: "/admin/categories", label: "Categories" },
   { href: "/admin/events", label: "Events" },
+  { href: "/admin/autopilot", label: "Autopilot" },
   { href: "/admin/ads", label: "Ad Spots" },
   { href: "/admin/notices", label: "Notices" },
   { href: "/admin/reports", label: "Reports" },

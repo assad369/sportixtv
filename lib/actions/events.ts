@@ -7,6 +7,7 @@ import { z } from "zod";
 import { events } from "@/lib/db/collections";
 import { requireSession } from "@/lib/auth/session";
 import { slugify } from "@/lib/utils";
+import { diffEditorial, snapshotEditorial } from "@/lib/sync/transform";
 
 const eventSchema = z.object({
   id: z.string().optional().or(z.literal("")),
@@ -72,7 +73,20 @@ export async function upsertEvent(formData: FormData): Promise<void> {
     const existing = await col.findOne({ _id: new ObjectId(parsed.id) });
     if (!existing) throw new Error("Event not found");
     slug = existing.slug;
-    await col.updateOne({ _id: existing._id }, { $set: doc });
+
+    // For autopilot-managed events, pin every field the admin actually changed
+    // so the next sync won't clobber the manual override ("override wins").
+    const update: Record<string, unknown> = { ...doc };
+    if (existing.syncManaged) {
+      const changed = diffEditorial(
+        snapshotEditorial(existing),
+        snapshotEditorial(doc),
+      );
+      update.lockedFields = Array.from(
+        new Set([...(existing.lockedFields ?? []), ...changed]),
+      );
+    }
+    await col.updateOne({ _id: existing._id }, { $set: update });
   } else {
     slug = slugify(parsed.title);
     if (!slug) throw new Error("Could not derive a slug");

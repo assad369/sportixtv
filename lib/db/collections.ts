@@ -9,6 +9,9 @@ import type { SiteSettings } from "./schemas/settings";
 import type { NoticeDoc } from "./schemas/notice";
 import type { AdminUserDoc } from "./schemas/admin-user";
 import type { ReportDoc, ViewEventDoc } from "./schemas/report";
+import type { FixtureSourceDoc } from "./schemas/fixture-source";
+import type { LeagueChannelMapDoc } from "./schemas/league-channel-map";
+import type { SyncRunDoc } from "./schemas/sync-run";
 
 export async function channels(): Promise<Collection<ChannelDoc>> {
   return (await getDb()).collection<ChannelDoc>("channels");
@@ -36,4 +39,15 @@ export async function reports(): Promise<Collection<ReportDoc>> {
 }
 export async function viewEvents(): Promise<Collection<ViewEventDoc>> {
   return (await getDb()).collection<ViewEventDoc>("viewEvents");
+}
+export async function fixtureSources(): Promise<Collection<FixtureSourceDoc>> {
+  return (await getDb()).collection<FixtureSourceDoc>("fixtureSources");
+}
+export async function leagueChannelMaps(): Promise<
+  Collection<LeagueChannelMapDoc>
+> {
+  return (await getDb()).collection<LeagueChannelMapDoc>("leagueChannelMaps");
+}
+export async function syncRuns(): Promise<Collection<SyncRunDoc>> {
+  return (await getDb()).collection<SyncRunDoc>("syncRuns");
 }
