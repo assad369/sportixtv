@@ -1,13 +1,15 @@
 import type { SourceAdapter } from "./types";
+import { thesportsdbAdapter } from "./thesportsdb";
 import { referenceAdapter } from "./reference";
 
 /**
  * Adapter registry — the single pluggable extension point. To add a provider:
  * implement SourceAdapter in a sibling file and register it here. No other code
- * needs to change.
+ * needs to change. Order matters: the first entry is the admin form default.
  */
 export const ADAPTERS: Record<string, SourceAdapter> = {
-  [referenceAdapter.id]: referenceAdapter,
+  [thesportsdbAdapter.id]: thesportsdbAdapter, // default data source
+  [referenceAdapter.id]: referenceAdapter, // synthetic / generic-JSON testing
   // [apiFootballAdapter.id]: apiFootballAdapter,   // ← future
   // [cricApiAdapter.id]: cricApiAdapter,           // ← future
 };

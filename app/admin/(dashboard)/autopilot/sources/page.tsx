@@ -12,12 +12,20 @@ export default async function SourcesPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Sources</h1>
-        <Link
-          href="/admin/autopilot/sources/new"
-          className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
-        >
-          + New source
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/autopilot/leagues"
+            className="rounded-lg border border-edge px-4 py-2 text-sm font-medium hover:bg-surface-2"
+          >
+            League Finder
+          </Link>
+          <Link
+            href="/admin/autopilot/sources/new"
+            className="rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark"
+          >
+            + New source
+          </Link>
+        </div>
       </div>
 
       <div className="mt-6 overflow-x-auto rounded-xl border border-edge">

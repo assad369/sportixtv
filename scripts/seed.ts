@@ -261,6 +261,52 @@ async function main() {
     { upsert: true },
   );
 
+  console.log("Seeding autopilot source (TheSportsDB, free key)...");
+  await db.collection("fixtureSources").updateOne(
+    { adapter: "thesportsdb" },
+    {
+      $setOnInsert: {
+        adapter: "thesportsdb",
+        label: "TheSportsDB",
+        enabled: true,
+        apiKeyEnc: encryptSecret("123"),
+        priority: 0,
+        competitions: [
+          {
+            providerLeagueId: "4328",
+            label: "English Premier League",
+            enabled: true,
+          },
+          { providerLeagueId: "4424", label: "MLB", enabled: true },
+        ],
+        lastRunAt: null,
+        lastStatus: null,
+        createdAt: now,
+        updatedAt: now,
+      },
+    },
+    { upsert: true },
+  );
+
+  console.log("Seeding autopilot league→channel mappings...");
+  const demoSportsId = channelIds.get("demo-sports-hd")!;
+  for (const sport of ["Soccer", "Baseball"]) {
+    await db.collection("leagueChannelMaps").updateOne(
+      { "match.sport": sport },
+      {
+        $setOnInsert: {
+          match: { sport },
+          channelIds: [demoSportsId],
+          priority: 0,
+          enabled: true,
+          createdAt: now,
+          updatedAt: now,
+        },
+      },
+      { upsert: true },
+    );
+  }
+
   console.log("Seeding notice...");
   await db.collection("notices").updateOne(
     { text: { $regex: "^Welcome to SportixTV" } },

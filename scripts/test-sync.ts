@@ -12,6 +12,10 @@ import {
 } from "../lib/sync/transform";
 import { resolveChannelIds as _assignResolve } from "../lib/sync/assign";
 import { mapReferenceFixture } from "../lib/sync/adapters/reference";
+import {
+  mapTheSportsDbEvent,
+  toUtcDate,
+} from "../lib/sync/adapters/thesportsdb";
 
 let passed = 0;
 let failed = 0;
@@ -187,6 +191,62 @@ console.log("mapReferenceFixture");
     f.startsAt.toISOString() === "2026-05-01T17:00:00.000Z",
   );
   ok("source tagged", f.source === "reference");
+}
+
+console.log("mapTheSportsDbEvent");
+{
+  const f = mapTheSportsDbEvent({
+    idEvent: "2069556",
+    strEvent: "Manchester United vs Fulham",
+    strSport: "Soccer",
+    idLeague: "4328",
+    strLeague: "English Premier League",
+    strHomeTeam: "Manchester United",
+    strAwayTeam: "Fulham",
+    strHomeTeamBadge: "https://example.com/home.png",
+    strAwayTeamBadge: "https://example.com/away.png",
+    dateEvent: "2024-08-16",
+    strTime: "19:00:00",
+    strTimestamp: "2024-08-16T19:00:00", // no Z — must be treated as UTC
+  })!;
+  ok("maps event (not null)", f != null);
+  ok("externalId from idEvent", f.externalId === "2069556");
+  ok("providerLeagueId from idLeague", f.providerLeagueId === "4328");
+  ok("sport passthrough", f.sport === "Soccer");
+  ok(
+    "tz-less timestamp parsed as UTC",
+    f.startsAt.toISOString() === "2024-08-16T19:00:00.000Z",
+  );
+  ok("home badge → teamA.logoUrl", f.teamA?.logoUrl === "https://example.com/home.png");
+  ok("title from strEvent", f.title === "Manchester United vs Fulham");
+  ok("externalUpdatedAt mirrors kickoff", +f.externalUpdatedAt! === +f.startsAt);
+}
+{
+  // No strTimestamp → fall back to dateEvent + strTime, still UTC.
+  const f = mapTheSportsDbEvent({
+    idEvent: "9",
+    idLeague: "4424",
+    strLeague: "MLB",
+    strSport: "Baseball",
+    strHomeTeam: "A",
+    strAwayTeam: "B",
+    dateEvent: "2026-06-15",
+    strTime: "22:40:00",
+  })!;
+  ok(
+    "fallback date+time as UTC",
+    f.startsAt.toISOString() === "2026-06-15T22:40:00.000Z",
+  );
+  ok("title fallback from teams", f.title === "A vs B");
+}
+{
+  ok("no idEvent → null", mapTheSportsDbEvent({ dateEvent: "2026-01-01" }) === null);
+  ok("no date → null", mapTheSportsDbEvent({ idEvent: "1" }) === null);
+  ok(
+    "toUtcDate keeps explicit offset",
+    toUtcDate("2024-08-16T19:00:00+02:00")?.toISOString() ===
+      "2024-08-16T17:00:00.000Z",
+  );
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

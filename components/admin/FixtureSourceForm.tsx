@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { saveFixtureSource } from "@/lib/actions/fixtures";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -100,11 +101,21 @@ export function FixtureSourceForm({
           name="competitions"
           rows={6}
           defaultValue={initial.competitions}
-          placeholder={"providerLeagueId | Label | season\n140 | La Liga | 2025"}
+          placeholder={
+            "providerLeagueId | label | season\n4328 | English Premier League\n4424 | MLB"
+          }
         />
         <p className="mt-1 text-xs text-ink-faint">
           One per line: <code>providerLeagueId | label | season</code> (label &
-          season optional).
+          season optional). For TheSportsDB, providerLeagueId is the{" "}
+          <code>idLeague</code> —{" "}
+          <Link
+            href="/admin/autopilot/leagues"
+            className="text-brand hover:underline"
+          >
+            find IDs with the League Finder
+          </Link>
+          .
         </p>
       </div>
 
