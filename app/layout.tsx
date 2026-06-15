@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.sportixtv.online";
   const logoUrl = settings.logoUrl || `${siteUrl}/logo/sportixtv_logo.png`;
   const ogImage = { url: logoUrl, width: 1200, height: 630, alt: settings.siteName };
   return {

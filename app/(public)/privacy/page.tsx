@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default async function PrivacyPage() {
   const settings = await getSettings();
   const siteName = settings.siteName;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://sportixtv.online";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.sportixtv.online";
 
   return (
     <article className="mx-auto max-w-2xl">

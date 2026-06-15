@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const event = await getEventBySlug(slug);
   if (!event) return {};
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.sportixtv.online";
   const hasTeams = event.teamA && event.teamB;
   const title = hasTeams
     ? `${event.teamA!.name} vs ${event.teamB!.name} Live${event.league ? ` – ${event.league}` : ""}`

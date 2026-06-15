@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const channel = await getChannelBySlug(slug);
   if (!channel) return {};
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.sportixtv.online";
   const description = `Watch ${channel.name} live stream online for free in HD. ${channel.description || "Live 24/7 streaming available."}`.slice(0, 160);
   const ogImage = { url: channel.logoUrl, alt: `${channel.name} live stream` };
   return {

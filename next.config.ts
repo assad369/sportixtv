@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://sportixtv.online";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.sportixtv.online";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
@@ -69,11 +69,12 @@ const nextConfig: NextConfig = {
     ];
   },
   async redirects() {
+    // Redirect non-www → www (canonical is www.sportixtv.online)
+    const bareHost = siteUrl.replace(/https?:\/\/(www\.)?/, "");
     return [
-      // Redirect bare www to non-www (or vice versa) — adjust if needed
       {
         source: "/:path*",
-        has: [{ type: "host", value: `www.${siteUrl.replace(/https?:\/\//, "")}` }],
+        has: [{ type: "host", value: bareHost }],
         destination: `${siteUrl}/:path*`,
         permanent: true,
       },

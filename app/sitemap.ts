@@ -4,7 +4,7 @@ import { getAllActiveChannels } from "@/lib/data/channels";
 import { getRecentAndUpcomingEvents } from "@/lib/data/events";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const url = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const url = process.env.NEXT_PUBLIC_SITE_URL || "https://www.sportixtv.online";
   const now = new Date();
 
   const [categories, channels, events] = await Promise.all([

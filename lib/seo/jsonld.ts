@@ -3,7 +3,7 @@ import type { EventLite } from "@/lib/data/events";
 import type { SiteSettings } from "@/lib/db/schemas/settings";
 
 function siteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  return process.env.NEXT_PUBLIC_SITE_URL || "https://www.sportixtv.online";
 }
 
 export function websiteJsonLd(settings: SiteSettings) {
