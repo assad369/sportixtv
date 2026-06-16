@@ -88,7 +88,7 @@ export function channelJsonLd(channel: ChannelLite, settings: SiteSettings) {
           channel.description ||
           `Watch ${channel.name} live stream online in HD on ${settings.siteName}. Free live streaming available 24/7.`,
         thumbnailUrl: [channel.logoUrl],
-        uploadDate: "2024-01-01",
+        uploadDate: "2024-01-01T00:00:00+00:00",
         contentUrl: pageUrl,
         embedUrl: pageUrl,
         isLiveBroadcast: true,
@@ -108,7 +108,7 @@ export function channelJsonLd(channel: ChannelLite, settings: SiteSettings) {
         description: `Stream ${channel.name} live online in HD for free.`,
         isPartOf: { "@id": `${url}/#website` },
         about: { "@id": `${pageUrl}/#broadcast` },
-        breadcrumb: { "@type": "BreadcrumbList" },
+        breadcrumb: { "@id": `${pageUrl}/#breadcrumb` },
       },
     ],
   };
