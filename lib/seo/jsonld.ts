@@ -1,6 +1,7 @@
 import type { ChannelLite } from "@/lib/data/channels";
 import type { EventLite } from "@/lib/data/events";
 import type { SiteSettings } from "@/lib/db/schemas/settings";
+import type { BlogPost } from "@/lib/blog/posts";
 
 function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "https://www.sportixtv.online";
@@ -315,6 +316,80 @@ export function aboutPageJsonLd(settings: SiteSettings) {
           { name: "About", url: `${url}/about` },
         ]),
       },
+    ],
+  };
+}
+
+export function blogIndexJsonLd(posts: BlogPost[]) {
+  const url = siteUrl();
+  const pageUrl = `${url}/blog`;
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbJsonLd([
+        { name: "Home", url },
+        { name: "Blog", url: pageUrl },
+      ]),
+      {
+        "@type": "Blog",
+        "@id": `${pageUrl}/#blog`,
+        name: "SportixTV Blog",
+        description:
+          "Guides on watching live sports & TV channels free online — Sport TV live, live football, T Sports and more.",
+        url: pageUrl,
+        publisher: { "@id": `${url}/#organization` },
+        blogPost: posts.map((p) => ({
+          "@type": "BlogPosting",
+          headline: p.title,
+          url: `${url}/blog/${p.slug}`,
+          datePublished: p.publishedAt,
+          dateModified: p.updatedAt,
+          inLanguage: p.lang === "bn" ? "bn-BD" : "en-US",
+        })),
+      },
+    ],
+  };
+}
+
+export function blogPostingJsonLd(post: BlogPost) {
+  const url = siteUrl();
+  const pageUrl = `${url}/blog/${post.slug}`;
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbJsonLd([
+        { name: "Home", url },
+        { name: "Blog", url: `${url}/blog` },
+        { name: post.title, url: pageUrl },
+      ]),
+      {
+        "@type": "BlogPosting",
+        "@id": `${pageUrl}/#article`,
+        headline: post.title,
+        description: post.description,
+        url: pageUrl,
+        datePublished: post.publishedAt,
+        dateModified: post.updatedAt,
+        inLanguage: post.lang === "bn" ? "bn-BD" : "en-US",
+        keywords: post.keywords.join(", "),
+        author: { "@id": `${url}/#organization` },
+        publisher: { "@id": `${url}/#organization` },
+        mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
+        isPartOf: { "@id": `${url}/blog/#blog` },
+      },
+      ...(post.faqs?.length
+        ? [
+            {
+              "@type": "FAQPage",
+              "@id": `${pageUrl}/#faq`,
+              mainEntity: post.faqs.map((f) => ({
+                "@type": "Question",
+                name: f.q,
+                acceptedAnswer: { "@type": "Answer", text: f.a },
+              })),
+            },
+          ]
+        : []),
     ],
   };
 }

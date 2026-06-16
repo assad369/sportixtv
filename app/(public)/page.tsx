@@ -67,7 +67,11 @@ export default async function HomePage() {
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">
           Free live streaming of cricket, football, basketball, news, entertainment and more
-          — in HD, on any device. No sign-up required.
+          — in HD, on any device. No sign-up required.{" "}
+          <Link href="/blog" className="font-semibold text-brand hover:underline">
+            Read our guides
+          </Link>{" "}
+          to find today&apos;s live match.
         </p>
       </section>
 

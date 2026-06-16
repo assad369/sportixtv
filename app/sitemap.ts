@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getCategories } from "@/lib/data/categories";
 import { getAllActiveChannels } from "@/lib/data/channels";
 import { getRecentAndUpcomingEvents } from "@/lib/data/events";
+import { getAllPosts } from "@/lib/blog/posts";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const url = process.env.NEXT_PUBLIC_SITE_URL || "https://www.sportixtv.online";
@@ -25,6 +26,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${url}/events`,
       changeFrequency: "hourly",
       priority: 0.9,
+      lastModified: now,
+    },
+    {
+      url: `${url}/blog`,
+      changeFrequency: "weekly",
+      priority: 0.7,
       lastModified: now,
     },
     {
@@ -74,6 +81,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "hourly" as const,
       priority: 0.85,
       lastModified: now,
+    })),
+    ...getAllPosts().map((p) => ({
+      url: `${url}/blog/${p.slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+      lastModified: new Date(p.updatedAt),
     })),
   ];
 }

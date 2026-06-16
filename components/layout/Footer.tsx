@@ -49,6 +49,9 @@ export async function Footer() {
               <Link href="/about" className="font-medium text-ink-muted transition-colors hover:text-ink">
                 About
               </Link>
+              <Link href="/blog" className="font-medium text-ink-muted transition-colors hover:text-ink">
+                Blog
+              </Link>
               <Link href="/contact" className="font-medium text-ink-muted transition-colors hover:text-ink">
                 Contact
               </Link>
