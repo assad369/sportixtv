@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import type Hls from "hls.js";
 import {
@@ -19,6 +19,7 @@ interface Props {
   sourceLabels: string[];
   sourceTypes: ("hls" | "iframe")[];
   poster?: string;
+  channelSwitcher?: ReactNode;
 }
 
 type PlayerState = "loading" | "playing" | "paused" | "error";
@@ -77,7 +78,7 @@ async function fetchSource(
   }
 }
 
-export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, poster }: Props) {
+export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, poster, channelSwitcher }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -92,6 +93,7 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
   const [muted, setMuted] = useState(false);
   const [showQuality, setShowQuality] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [iframeAttrs, setIframeAttrs] = useState<IframeAttrs | null>(null);
 
@@ -285,7 +287,9 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
 
   useEffect(() => {
     const onFullscreenChange = () => {
-      if (!document.fullscreenElement) {
+      const active = document.fullscreenElement === containerRef.current;
+      setIsFullscreen(active);
+      if (!active) {
         const orientation = screen.orientation as ScreenOrientation & {
           unlock?: () => void;
         };
@@ -327,13 +331,12 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
             onPlaying={() => setState("playing")}
             onPause={() => setState("paused")}
             onWaiting={() => setState("loading")}
-            onClick={togglePlay}
             className="h-full w-full"
           />
         )}
 
         {/* SportixTV watermark — covers broadcaster logo in top-right */}
-        <div className="pointer-events-none absolute right-2 top-2 z-20 flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 backdrop-blur-sm sm:right-3 sm:top-3 sm:gap-2 sm:px-3 sm:py-2">
+        <div className="pointer-events-none absolute right-2 top-2 z-40 flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 backdrop-blur-sm sm:right-3 sm:top-3 sm:gap-2 sm:px-3 sm:py-2">
           <Image
             src="/logo/sportixtv_logo.png"
             alt="SportixTV"
@@ -346,6 +349,39 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
             sportixtv.online
           </span>
         </div>
+
+        {isFullscreen && (sourceLabels.length > 1 || channelSwitcher) && (
+          <div
+            className={cn(
+              "absolute inset-x-0 top-0 z-30 flex flex-wrap items-center gap-x-4 gap-y-2 bg-gradient-to-b from-black/80 to-transparent px-3 pb-6 pt-3 transition-opacity",
+              controlsVisible ? "opacity-100" : "pointer-events-none opacity-0",
+            )}
+          >
+            {sourceLabels.length > 1 && (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs text-white/70">Servers:</span>
+                {sourceLabels.map((label, i) => (
+                  <button
+                    key={`fs-server-${label}-${i}`}
+                    onClick={() => {
+                      retriedRef.current = false;
+                      setSourceIndex(i);
+                    }}
+                    className={cn(
+                      "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
+                      i === sourceIndex
+                        ? "border-brand bg-brand/20 text-brand"
+                        : "border-white/20 bg-black/40 text-white/80 hover:border-brand/50",
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+            {channelSwitcher}
+          </div>
+        )}
 
         {!iframeAttrs && state === "loading" && (
           <div className="pointer-events-none absolute inset-0 grid place-items-center">

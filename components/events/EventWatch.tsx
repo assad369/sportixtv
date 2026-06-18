@@ -49,6 +49,27 @@ export function EventWatch({
   const channel = channels[selected];
   const start = new Date(event.startsAt);
 
+  const channelSwitcher =
+    channels.length > 1 ? (
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs text-white/70">Watch on:</span>
+        {channels.map((c, i) => (
+          <button
+            key={c.id}
+            onClick={() => setSelected(i)}
+            className={cn(
+              "rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors",
+              i === selected
+                ? "border-brand bg-brand/20 text-brand"
+                : "border-white/20 bg-black/40 text-white/80 hover:border-brand/50",
+            )}
+          >
+            {c.name}
+          </button>
+        ))}
+      </div>
+    ) : null;
+
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
       {/* Left column: player */}
@@ -71,6 +92,7 @@ export function EventWatch({
                     : ["hls"]
                 }
                 poster={channel.logoUrl}
+                channelSwitcher={channelSwitcher}
               />
             )}
             {channels.length > 1 && (
