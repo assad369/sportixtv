@@ -19,9 +19,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `${event.teamA!.name} vs ${event.teamB!.name} Live${event.league ? ` – ${event.league}` : ""}`
     : `${event.title} Live`;
   const description = `Watch ${event.title} live online for free in HD. ${event.league ?? event.sport} live streaming on SportixTV.`.slice(0, 160);
-  const ogImage = hasTeams && event.teamA!.logoUrl
-    ? { url: event.teamA!.logoUrl, alt: title }
-    : undefined;
   return {
     title,
     description,
@@ -32,13 +29,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       url: `${siteUrl}/event/${slug}`,
-      ...(ogImage ? { images: [ogImage] } : {}),
+      siteName: "SportixTV",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      ...(ogImage ? { images: [ogImage] } : {}),
     },
   };
 }

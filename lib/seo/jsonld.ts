@@ -122,6 +122,11 @@ export function eventJsonLd(event: EventLite) {
   const eventName = hasTeams
     ? `${event.teamA!.name} vs ${event.teamB!.name}`
     : event.title;
+  const description = `Watch ${event.title} live online for free in HD. ${event.league ?? event.sport} live streaming on SportixTV.`;
+  const images = [event.teamA?.logoUrl, event.teamB?.logoUrl].filter(
+    (v): v is string => Boolean(v),
+  );
+
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -134,7 +139,9 @@ export function eventJsonLd(event: EventLite) {
         "@type": "SportsEvent",
         "@id": `${pageUrl}/#event`,
         name: event.title,
+        description,
         url: pageUrl,
+        ...(images.length ? { image: images } : {}),
         startDate: event.startsAt,
         ...(event.endsAt ? { endDate: event.endsAt } : {}),
         eventStatus: "https://schema.org/EventScheduled",
@@ -170,8 +177,37 @@ export function eventJsonLd(event: EventLite) {
           price: "0",
           priceCurrency: "USD",
           availability: "https://schema.org/InStock",
+          validFrom: event.startsAt,
           url: pageUrl,
         },
+      },
+      {
+        "@type": "VideoObject",
+        "@id": `${pageUrl}/#video`,
+        name: `Watch ${eventName} Live`,
+        description,
+        ...(images.length ? { thumbnailUrl: images } : {}),
+        uploadDate: event.startsAt,
+        contentUrl: pageUrl,
+        embedUrl: pageUrl,
+        isLiveBroadcast: true,
+        publication: {
+          "@type": "BroadcastEvent",
+          isLiveBroadcast: true,
+          startDate: event.startsAt,
+          ...(event.endsAt ? { endDate: event.endsAt } : {}),
+        },
+        publisher: { "@id": `${url}/#organization` },
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${pageUrl}/#webpage`,
+        url: pageUrl,
+        name: `Watch ${eventName} Live`,
+        description,
+        isPartOf: { "@id": `${url}/#website` },
+        about: { "@id": `${pageUrl}/#event` },
+        breadcrumb: { "@id": `${pageUrl}/#breadcrumb` },
       },
     ],
   };
@@ -234,18 +270,38 @@ export function eventsListJsonLd(
   events: { title: string; slug: string; startsAt: string | Date; sport: string }[],
 ) {
   const url = siteUrl();
+  const pageUrl = `${url}/events`;
   return {
     "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "Live Sports Events",
-    description: "Watch live and upcoming sports events online for free.",
-    numberOfItems: events.length,
-    itemListElement: events.map((e, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      name: e.title,
-      url: `${url}/event/${e.slug}`,
-    })),
+    "@graph": [
+      breadcrumbJsonLd([
+        { name: "Home", url },
+        { name: "Events", url: pageUrl },
+      ]),
+      {
+        "@type": "ItemList",
+        "@id": `${pageUrl}/#list`,
+        name: "Live Sports Events",
+        description: "Watch live and upcoming sports events online for free.",
+        numberOfItems: events.length,
+        itemListElement: events.map((e, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: e.title,
+          url: `${url}/event/${e.slug}`,
+        })),
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${pageUrl}/#webpage`,
+        url: pageUrl,
+        name: "Live Sports Events & Match Schedule",
+        description: "Watch live and upcoming sports events online for free.",
+        isPartOf: { "@id": `${url}/#website` },
+        about: { "@id": `${pageUrl}/#list` },
+        breadcrumb: { "@id": `${pageUrl}/#breadcrumb` },
+      },
+    ],
   };
 }
 

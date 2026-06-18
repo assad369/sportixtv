@@ -265,14 +265,36 @@ export function LivePlayer({ channelId, channelName, sourceLabels, sourceTypes, 
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => undefined);
     } else {
-      el.requestFullscreen().catch(() => {
-        const video = videoRef.current as HTMLVideoElement & {
-          webkitEnterFullscreen?: () => void;
-        };
-        video?.webkitEnterFullscreen?.();
-      });
+      el.requestFullscreen()
+        .then(() => {
+          if (window.matchMedia("(pointer: coarse)").matches) {
+            const orientation = screen.orientation as ScreenOrientation & {
+              lock?: (orientation: string) => Promise<void>;
+            };
+            orientation?.lock?.("landscape").catch(() => undefined);
+          }
+        })
+        .catch(() => {
+          const video = videoRef.current as HTMLVideoElement & {
+            webkitEnterFullscreen?: () => void;
+          };
+          video?.webkitEnterFullscreen?.();
+        });
     }
   };
+
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        const orientation = screen.orientation as ScreenOrientation & {
+          unlock?: () => void;
+        };
+        orientation?.unlock?.();
+      }
+    };
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
+  }, []);
 
   const retry = () => {
     retriedRef.current = false;
