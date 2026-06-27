@@ -17,6 +17,8 @@ export interface SiteSettings {
   adsenseEnabled: boolean;
   tickerEnabled: boolean;
   popunderEnabled: boolean;
+  /** Channel `_id` (hex) auto-linked to World Cup 2026 fixtures on sync. */
+  worldCupDefaultChannelId?: string;
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {

@@ -16,6 +16,8 @@ export interface EventDoc {
   teamB?: EventTeam;
   startsAt: Date;
   endsAt?: Date | null;
+  /** Stadium / venue, e.g. "Estadio Azteca; Mexico City, MEX". */
+  venue?: string;
   /** Admin override; when null/absent the status is derived from the clock. */
   forcedStatus?: EventStatus | null;
   channelIds: ObjectId[];

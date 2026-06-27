@@ -1,14 +1,19 @@
 import { settings } from "@/lib/db/collections";
 import { DEFAULT_SETTINGS } from "@/lib/db/schemas/settings";
 import { updateSettings } from "@/lib/actions/settings";
-import { Input, Textarea } from "@/components/ui/Input";
+import { syncWorldCup } from "@/lib/actions/worldcup";
+import { getAllActiveChannels } from "@/lib/data/channels";
+import { Input, Textarea, Select } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { requireSession } from "@/lib/auth/session";
 
 export default async function AdminSettingsPage() {
   await requireSession();
   const col = await settings();
-  const doc = (await col.findOne({ _id: "site" })) ?? DEFAULT_SETTINGS;
+  const [doc, channels] = await Promise.all([
+    col.findOne({ _id: "site" }).then((d) => d ?? DEFAULT_SETTINGS),
+    getAllActiveChannels(),
+  ]);
 
   return (
     <div>
@@ -141,12 +146,52 @@ export default async function AdminSettingsPage() {
           </div>
         </fieldset>
 
+        <fieldset className="rounded-xl border border-edge p-4">
+          <legend className="px-2 text-sm font-semibold">
+            FIFA World Cup 2026
+          </legend>
+          <div className="flex flex-col gap-2">
+            <label className="block text-sm font-medium">
+              Default streaming channel
+            </label>
+            <Select
+              name="worldCupDefaultChannelId"
+              defaultValue={doc.worldCupDefaultChannelId ?? ""}
+            >
+              <option value="">— None —</option>
+              {channels.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+            <p className="text-xs text-ink-muted">
+              Auto-created World Cup fixtures link to this channel. Saving
+              re-links every fixture (except matches you overrode individually in
+              the event editor).
+            </p>
+          </div>
+        </fieldset>
+
         <div>
           <Button type="submit" size="lg">
             Save settings
           </Button>
         </div>
       </form>
+
+      <div className="mt-8 max-w-2xl rounded-xl border border-edge p-4">
+        <h2 className="text-sm font-semibold">World Cup fixtures</h2>
+        <p className="mt-1 text-xs text-ink-muted">
+          Create or refresh all 104 official fixtures. Idempotent and safe to run
+          anytime — re-runs never overwrite your manual edits.
+        </p>
+        <form action={syncWorldCup} className="mt-3">
+          <Button type="submit" variant="secondary">
+            Sync World Cup fixtures
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

@@ -7,11 +7,13 @@ import {
   GridIcon,
   CalendarIcon,
   HeartIcon,
+  FlagIcon,
 } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 const ITEMS = [
   { href: "/", label: "Home", Icon: HomeIcon },
+  { href: "/fixtures", label: "World Cup", Icon: FlagIcon },
   { href: "/categories", label: "Categories", Icon: GridIcon },
   { href: "/events", label: "Events", Icon: CalendarIcon },
   { href: "/favorites", label: "Favorites", Icon: HeartIcon },
@@ -24,7 +26,7 @@ export function BottomNav() {
       aria-label="Mobile"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-white/5 bg-surface/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] md:hidden"
     >
-      <div className="grid grid-cols-4">
+      <div className="grid grid-cols-5">
         {ITEMS.map(({ href, label, Icon }) => {
           const active =
             href === "/" ? pathname === "/" : pathname.startsWith(href);

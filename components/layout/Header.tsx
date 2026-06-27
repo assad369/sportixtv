@@ -7,6 +7,7 @@ import { TvIcon } from "@/components/icons";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
+  { href: "/fixtures", label: "World Cup" },
   { href: "/categories", label: "Categories" },
   { href: "/events", label: "Events" },
   { href: "/blog", label: "Blog" },

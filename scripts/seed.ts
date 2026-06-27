@@ -12,6 +12,8 @@
 import { MongoClient, ObjectId } from "mongodb";
 import { createCipheriv, randomBytes } from "crypto";
 import bcrypt from "bcryptjs";
+// Pure module (no "server-only"): safe to import into this standalone script.
+import { syncWorldCupFixtures } from "../lib/worldcup/sync";
 
 try {
   process.loadEnvFile(".env.local");
@@ -319,6 +321,12 @@ async function main() {
       },
     },
     { upsert: true },
+  );
+
+  console.log("Seeding FIFA World Cup 2026 fixtures...");
+  const wc = await syncWorldCupFixtures(db);
+  console.log(
+    `  → ${wc.created} created, ${wc.updated} updated (${wc.total} total).`,
   );
 
   console.log("Done.");

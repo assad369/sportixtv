@@ -21,12 +21,13 @@ export interface EventLite {
   teamB?: EventTeam;
   startsAt: string; // ISO
   endsAt: string | null; // ISO
+  venue?: string;
   forcedStatus: EventStatus | null;
   isFeatured: boolean;
   channels: { slug: string; name: string; logoUrl: string }[];
 }
 
-async function toLite(doc: EventDoc): Promise<EventLite> {
+export async function toLite(doc: EventDoc): Promise<EventLite> {
   const chCol = await channels();
   const chDocs = doc.channelIds.length
     ? await chCol
@@ -46,6 +47,7 @@ async function toLite(doc: EventDoc): Promise<EventLite> {
     teamB: doc.teamB,
     startsAt: doc.startsAt.toISOString(),
     endsAt: doc.endsAt ? doc.endsAt.toISOString() : null,
+    venue: doc.venue,
     forcedStatus: doc.forcedStatus ?? null,
     isFeatured: doc.isFeatured,
     channels: chDocs.map((c) => ({
@@ -57,16 +59,25 @@ async function toLite(doc: EventDoc): Promise<EventLite> {
 }
 
 /**
- * Recent + upcoming events (last 2 days back, anything in the future).
- * Short cache life keeps the window rolling without admin action.
+ * Recent + upcoming events (last 2 days back, anything in the future). The
+ * lower bound is day-granular so the cached output stays stable within a day
+ * (clock-independent), and keeps the result from being swamped by long-finished
+ * fixtures — e.g. the 100+ World Cup group games — pushing live ones past the limit.
  */
 export async function getRecentAndUpcomingEvents(): Promise<EventLite[]> {
   "use cache";
   cacheTag("events");
   cacheLife("minutes");
   return safeQuery([], async () => {
+    const since = new Date();
+    since.setUTCHours(0, 0, 0, 0);
+    since.setUTCDate(since.getUTCDate() - 2);
     const col = await events();
-    const docs = await col.find({}).sort({ startsAt: 1 }).limit(100).toArray();
+    const docs = await col
+      .find({ startsAt: { $gte: since } })
+      .sort({ startsAt: 1 })
+      .limit(200)
+      .toArray();
     return Promise.all(docs.map(toLite));
   });
 }

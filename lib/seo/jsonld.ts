@@ -305,6 +305,63 @@ export function eventsListJsonLd(
   };
 }
 
+export function worldCupFixturesJsonLd(events: EventLite[]) {
+  const url = siteUrl();
+  const pageUrl = `${url}/fixtures`;
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbJsonLd([
+        { name: "Home", url },
+        { name: "FIFA World Cup 2026 Fixtures", url: pageUrl },
+      ]),
+      {
+        "@type": "ItemList",
+        "@id": `${pageUrl}/#list`,
+        name: "FIFA World Cup 2026 Fixtures",
+        description:
+          "Full FIFA World Cup 2026 match schedule — dates, kickoff times, venues and live status. Watch every match live online for free.",
+        numberOfItems: events.length,
+        itemListElement: events.map((e, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          item: {
+            "@type": "SportsEvent",
+            name: e.title,
+            url: `${url}/event/${e.slug}`,
+            startDate: e.startsAt,
+            ...(e.endsAt ? { endDate: e.endsAt } : {}),
+            eventStatus: "https://schema.org/EventScheduled",
+            sport: "Soccer",
+            ...(e.venue
+              ? { location: { "@type": "Place", name: e.venue } }
+              : {}),
+            ...(e.teamA && e.teamB
+              ? {
+                  competitor: [
+                    { "@type": "SportsTeam", name: e.teamA.name },
+                    { "@type": "SportsTeam", name: e.teamB.name },
+                  ],
+                }
+              : {}),
+          },
+        })),
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${pageUrl}/#webpage`,
+        url: pageUrl,
+        name: "FIFA World Cup 2026 Fixtures & Schedule",
+        description:
+          "FIFA World Cup 2026 fixtures, kickoff times and venues. Watch live online for free in HD.",
+        isPartOf: { "@id": `${url}/#website` },
+        about: { "@id": `${pageUrl}/#list` },
+        breadcrumb: { "@id": `${pageUrl}/#breadcrumb` },
+      },
+    ],
+  };
+}
+
 export function homePageFaqJsonLd(siteName: string) {
   return {
     "@context": "https://schema.org",
