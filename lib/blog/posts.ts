@@ -560,6 +560,418 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
     relatedSlugs: ["t-sports-live", "live-football-today-bn", "watch-all-tv-channels-live-free"],
   },
+
+  // 8 — Argentina vs Austria, World Cup 2026 (match preview)
+  {
+    slug: "argentina-vs-austria-world-cup-2026",
+    lang: "en",
+    title: "Argentina vs Austria, World Cup 2026: Live Stream, Kick-off Time & Prediction",
+    description:
+      "How to watch Argentina vs Austria live free at World Cup 2026 — kick-off time, expected line-ups, head-to-head and an honest score prediction.",
+    keywords: [
+      "argentina vs austria",
+      "argentina vs austria live",
+      "argentina vs austria world cup",
+      "argentina vs austria world cup 2026 live",
+      "argentina vs austria live match today",
+      "argentina vs austria lineup",
+      "argentina vs austria prediction",
+      "argentina vs austria score",
+    ],
+    publishedAt: "2026-06-27T09:00:00+00:00",
+    updatedAt: "2026-06-27T09:00:00+00:00",
+    body: [
+      {
+        type: "p",
+        text: "Argentina vs Austria is one of the most-searched ties of the World Cup 2026 window, and this guide keeps it simple: where to watch it live and free, when it kicks off, the expected line-ups, the head-to-head and an honest prediction. Argentina arrive as the reigning world champions; Austria are the kind of organised, hard-running European side that can make life awkward for anyone.",
+      },
+      { type: "h2", text: "How to watch Argentina vs Austria live free" },
+      {
+        type: "p",
+        text: "On SportixTV you can open the live stream of Argentina vs Austria straight in your browser — no app and no sign-up. Check the events page for the fixture; when it goes live the watch link appears right next to it, with multiple servers so you can switch if one is slow.",
+      },
+      { type: "cta", href: "/events", label: "Find Argentina vs Austria on live events" },
+      {
+        type: "p",
+        text: "A quick note on kick-off time: World Cup 2026 is hosted across the USA, Canada and Mexico, so start times vary a lot by region. Always check the time in your own timezone on the events page rather than assuming an evening kick-off — many North American group games begin in the afternoon local time.",
+      },
+      { type: "cta", href: "/", label: "Browse all live channels" },
+      { type: "h2", text: "Expected line-ups" },
+      {
+        type: "p",
+        text: "Squads change with form and fitness, so treat these as likely first-choice XIs rather than confirmed teams. Argentina usually build around their experienced core in midfield and attack, with pace out wide and a settled back line. Austria tend to line up compact and aggressive in the press, looking to spring quick transitions and win second balls — the official starting elevens are only confirmed about an hour before kick-off.",
+      },
+      { type: "h2", text: "Argentina vs Austria prediction" },
+      {
+        type: "p",
+        text: "On paper Argentina are clear favourites: more tournament pedigree, more match-winners and the calm of a side that has already gone all the way. But Austria are well-drilled and rarely beaten easily, so a cagey first half would be no surprise. The fair read is Argentina to win without it being a rout — we won't invent a final scoreline here. For the actual result, watch it live and let the 90 minutes decide.",
+      },
+      DISCLAIMER_EN,
+    ],
+    faqs: [
+      {
+        q: "Where can I watch Argentina vs Austria live for free?",
+        a: "You can watch Argentina vs Austria live free on SportixTV in your browser — open the events page, find the fixture, and use the watch link that appears when it goes live. No app or sign-up is needed.",
+      },
+      {
+        q: "What time does Argentina vs Austria kick off?",
+        a: "World Cup 2026 kick-off times vary by host city and region across the USA, Canada and Mexico. Check the SportixTV events page to see the start time converted to your own timezone.",
+      },
+      {
+        q: "Who is favourite to win Argentina vs Austria?",
+        a: "Argentina are the favourites as reigning world champions with more tournament pedigree, but Austria are a compact, well-organised side who can make it tight. We don't publish a fabricated scoreline — the live match decides it.",
+      },
+    ],
+    relatedSlugs: [
+      "brazil-vs-argentina-head-to-head",
+      "portugal-vs-argentina-history",
+      "live-sports-tv-channels",
+    ],
+  },
+
+  // 9 — Brazil vs Argentina head-to-head & famous scores (myth-correcting)
+  {
+    slug: "brazil-vs-argentina-head-to-head",
+    lang: "en",
+    title: "Brazil vs Argentina: Head-to-Head History, Biggest Wins & Famous Scores",
+    description:
+      "The real Brazil vs Argentina head-to-head — biggest wins, the truth about the famous '7-1', and where to watch the next match live free.",
+    keywords: [
+      "brazil vs argentina",
+      "brazil vs argentina match",
+      "brazil vs argentina today match",
+      "brazil vs argentina all match",
+      "brazil vs argentina 7 1",
+      "brazil vs argentina 4-1",
+      "brazil vs argentina 8 2",
+      "brazil vs argentina head to head",
+    ],
+    publishedAt: "2026-06-27T10:00:00+00:00",
+    updatedAt: "2026-06-27T10:00:00+00:00",
+    body: [
+      {
+        type: "p",
+        text: "Brazil vs Argentina is the biggest rivalry in South American football — the Superclásico de las Américas. A lot of viral scorelines get attached to it online, so this guide does two things: sets the record straight on the famous results people search for, and shows you where to watch the next Brazil vs Argentina match live and free.",
+      },
+      { type: "h2", text: "The truth about 'Brazil vs Argentina 7-1'" },
+      {
+        type: "p",
+        text: "If you searched for 'Brazil vs Argentina 7-1', here is the honest answer: that scoreline is not from this fixture. The famous 7-1 was Germany 7-1 Brazil, in the 2014 World Cup semi-final in Belo Horizonte — Argentina were not involved. Likewise, scorelines like 8-2 or 10-1 are not real Brazil vs Argentina results; they tend to be mix-ups with other matches or video-game clips. The real rivalry is far tighter than those numbers suggest.",
+      },
+      {
+        type: "ul",
+        items: [
+          "Germany 7-1 Brazil (2014 World Cup semi-final) — the real source of the '7-1' search, not Argentina.",
+          "Brazil and Argentina have met well over 100 times across more than a century, with the head-to-head historically close.",
+          "Most modern meetings are decided by a single goal — blowouts in either direction are rare.",
+        ],
+      },
+      { type: "h2", text: "Biggest wins in the rivalry" },
+      {
+        type: "p",
+        text: "Both teams have enjoyed heavy wins over the decades, especially in older internationals and the Copa Roca era, but in the modern game the margins are slim. Tournament finals and World Cup qualifiers between them are usually tense, low-scoring affairs decided by a moment of quality rather than a landslide. So if a search promises a wild scoreline, check the date and competition before believing it.",
+      },
+      { type: "h2", text: "Where to watch the next Brazil vs Argentina live" },
+      {
+        type: "p",
+        text: "When the next Brazil vs Argentina match is scheduled — a friendly, a Copa América tie or a World Cup qualifier — you can watch it live and free on SportixTV. Open the events page to find the fixture; the watch link appears beside it when the game goes live, with multiple servers for a smoother stream.",
+      },
+      { type: "cta", href: "/events", label: "See upcoming Brazil vs Argentina fixtures" },
+      { type: "cta", href: "/", label: "Browse live football channels" },
+      DISCLAIMER_EN,
+    ],
+    faqs: [
+      {
+        q: "Was Brazil vs Argentina ever 7-1?",
+        a: "No. The famous 7-1 was Germany 7-1 Brazil in the 2014 World Cup semi-final — Argentina were not involved. Brazil vs Argentina has never finished 7-1; that search is a common mix-up.",
+      },
+      {
+        q: "What is the biggest Brazil vs Argentina scoreline?",
+        a: "Both sides have had heavy wins in older internationals, but modern Brazil vs Argentina matches are usually decided by a single goal. Viral scorelines like 8-2 or 10-1 are not real results from this fixture.",
+      },
+      {
+        q: "Where can I watch Brazil vs Argentina live for free?",
+        a: "On SportixTV. Open the events page, find the Brazil vs Argentina fixture, and use the watch link that appears when it goes live — free, in your browser, no app required.",
+      },
+    ],
+    relatedSlugs: [
+      "argentina-vs-austria-world-cup-2026",
+      "portugal-vs-argentina-history",
+      "live-sports-tv-channels",
+    ],
+  },
+
+  // 10 — Portugal vs Argentina history & could they meet in 2026
+  {
+    slug: "portugal-vs-argentina-history",
+    lang: "en",
+    title: "Portugal vs Argentina: Every Match, Real Results & Could They Meet at World Cup 2026?",
+    description:
+      "The real Portugal vs Argentina history — past results, the truth about viral scorelines, Messi vs Ronaldo, and a possible World Cup 2026 meeting.",
+    keywords: [
+      "portugal vs argentina",
+      "portugal vs argentina world cup 2026",
+      "portugal vs argentina world cup final",
+      "portugal vs argentina matches",
+      "portugal vs argentina 2011",
+      "portugal vs argentina 2014",
+      "portugal vs argentina today match",
+    ],
+    publishedAt: "2026-06-27T11:00:00+00:00",
+    updatedAt: "2026-06-27T11:00:00+00:00",
+    body: [
+      {
+        type: "p",
+        text: "Portugal vs Argentina is the dream match for neutrals — the fixture that could pit Lionel Messi against Cristiano Ronaldo on the biggest stage. But the two nations have actually played each other only a handful of times, almost always in friendlies. Here is the honest history, the truth about the scorelines people search for, and whether they could finally meet at World Cup 2026.",
+      },
+      { type: "h2", text: "How often have Portugal and Argentina played?" },
+      {
+        type: "p",
+        text: "Surprisingly rarely. Portugal and Argentina are from different confederations, so they don't meet in qualifiers or continental tournaments — only in friendlies or, in theory, the World Cup knockout rounds. Their meetings have been occasional exhibition games, and the two have never faced each other in a competitive World Cup or final.",
+      },
+      {
+        type: "ul",
+        items: [
+          "They have met only a few times, all friendlies — never at a World Cup and never in a final.",
+          "Their 2011 friendly was a closely contested game decided by a single goal, not a blowout.",
+          "Viral scorelines like 'Portugal vs Argentina 6-0' or '7-2' are not real results between these teams — treat them with caution.",
+        ],
+      },
+      { type: "h2", text: "Messi vs Ronaldo: the match everyone wants" },
+      {
+        type: "p",
+        text: "The reason Portugal vs Argentina trends is simple: Messi and Ronaldo. For two decades they have defined the era, yet they have shared a pitch at international level only a couple of times. A competitive Portugal vs Argentina game would be one of the most-watched football matches ever — which is exactly why so many people search for it even when one isn't scheduled.",
+      },
+      { type: "h2", text: "Could Portugal vs Argentina happen at World Cup 2026?" },
+      {
+        type: "p",
+        text: "Yes — but only in the knockout rounds. Because they're in different qualifying regions, they can't be drawn in the same group, so a 2026 meeting would mean both teams progressing and the bracket lining them up in the last 16, quarter-finals, semi-finals or, dream scenario, the final. If it happens, you'll be able to watch it live and free on SportixTV.",
+      },
+      { type: "cta", href: "/events", label: "Check live & upcoming World Cup 2026 fixtures" },
+      { type: "cta", href: "/", label: "Browse live football channels" },
+      DISCLAIMER_EN,
+    ],
+    faqs: [
+      {
+        q: "Have Portugal and Argentina ever met at a World Cup?",
+        a: "No. Portugal and Argentina have never faced each other at a World Cup or in a final. Because they qualify through different confederations, their only meetings have been occasional friendlies.",
+      },
+      {
+        q: "Is 'Portugal vs Argentina 6-0' or '7-2' a real result?",
+        a: "No. There is no record of Portugal vs Argentina finishing 6-0 or 7-2. Their actual meetings have been close friendlies; those viral scorelines are mix-ups with other games or fabricated clips.",
+      },
+      {
+        q: "Could Portugal play Argentina at World Cup 2026?",
+        a: "Only in the knockout stage. They can't be in the same group, so a 2026 meeting would require both teams to reach the same point in the bracket — anywhere from the last 16 to the final.",
+      },
+    ],
+    relatedSlugs: [
+      "argentina-vs-austria-world-cup-2026",
+      "brazil-vs-argentina-head-to-head",
+      "live-football-today-bn",
+    ],
+  },
+
+  // 11 — Germany vs Curaçao, World Cup 2026 (match preview)
+  {
+    slug: "germany-vs-curacao-world-cup-2026",
+    lang: "en",
+    title: "Germany vs Curaçao, World Cup 2026: Where to Watch, Live Stream & Kick-off Time",
+    description:
+      "How to watch Germany vs Curaçao live free at World Cup 2026 — kick-off time, where to stream, expected line-ups and an honest prediction.",
+    keywords: [
+      "germany vs curacao",
+      "germany vs curaçao world cup 2026 live",
+      "germany vs curaçao world cup 2026 stream",
+      "germany vs curaçao world cup 2026 time",
+      "germany vs curaçao world cup 2026 where",
+      "germany vs curacao live score",
+      "germany vs curacao score",
+    ],
+    publishedAt: "2026-06-27T12:00:00+00:00",
+    updatedAt: "2026-06-27T12:00:00+00:00",
+    body: [
+      {
+        type: "p",
+        text: "Germany vs Curaçao is a classic World Cup 2026 mismatch on paper — a four-time world champion against one of the smallest nations ever to reach the finals. That's exactly why it's worth watching, and this guide covers where to stream it, when it kicks off, the expected line-ups and an honest prediction.",
+      },
+      { type: "h2", text: "Where to watch Germany vs Curaçao live free" },
+      {
+        type: "p",
+        text: "On SportixTV you can watch Germany vs Curaçao live and free in your browser — nothing to install, no account needed. Head to the events page, find the fixture, and the watch link appears beside it once the game is live, with multiple servers so you can switch if one buffers.",
+      },
+      { type: "cta", href: "/events", label: "Find Germany vs Curaçao on live events" },
+      {
+        type: "p",
+        text: "Kick-off time (and where the match is played) depends on the host city, since World Cup 2026 spans the USA, Canada and Mexico. Rather than guess, check the events page, which shows the start time in your own timezone.",
+      },
+      { type: "cta", href: "/", label: "Browse all live channels" },
+      { type: "h2", text: "The Curaçao underdog story" },
+      {
+        type: "p",
+        text: "Curaçao is a tiny Caribbean island, and simply reaching the World Cup is a remarkable achievement that captured neutral support worldwide. They'll set up to defend deep, frustrate, and hit on the break — the kind of plan that has caused giants problems before. Germany, by contrast, will dominate the ball and look to break the low block early.",
+      },
+      { type: "h2", text: "Expected line-ups & prediction" },
+      {
+        type: "p",
+        text: "Confirmed teams arrive about an hour before kick-off, so treat any XI as provisional. Expect Germany to field a strong, attack-minded side and Curaçao to pack the defence. Honestly, Germany are heavy favourites and should win comfortably — but we won't invent a scoreline. The fun is in seeing whether Curaçao can land a shock moment, so watch it live and find out.",
+      },
+      DISCLAIMER_EN,
+    ],
+    faqs: [
+      {
+        q: "Where can I watch Germany vs Curaçao live for free?",
+        a: "On SportixTV. Open the events page, find Germany vs Curaçao, and use the watch link that appears when the match goes live — free, in your browser, with no app or sign-up.",
+      },
+      {
+        q: "What time does Germany vs Curaçao kick off?",
+        a: "It depends on the host city, as World Cup 2026 is played across the USA, Canada and Mexico. The SportixTV events page shows the kick-off time converted to your timezone.",
+      },
+      {
+        q: "Who will win Germany vs Curaçao?",
+        a: "Germany are heavy favourites against World Cup debutants Curaçao and should win comfortably. We don't publish a fabricated scoreline — the live match decides the result.",
+      },
+    ],
+    relatedSlugs: [
+      "ecuador-vs-germany-world-cup-2026",
+      "spain-vs-saudi-arabia-world-cup-2026",
+      "live-sports-tv-channels",
+    ],
+  },
+
+  // 12 — Ecuador vs Germany, World Cup 2026 (match preview)
+  {
+    slug: "ecuador-vs-germany-world-cup-2026",
+    lang: "en",
+    title: "Ecuador vs Germany, World Cup 2026: Live Stream, Kick-off Time & Preview",
+    description:
+      "How to watch Ecuador vs Germany live free at World Cup 2026 — kick-off time, where to stream, expected line-ups and an honest prediction.",
+    keywords: [
+      "ecuador vs germany",
+      "ecuador vs germany world cup 2026",
+      "ecuador vs germany live",
+      "ecuador vs germany stream",
+      "ecuador vs germany prediction",
+      "ecuador vs germany time",
+    ],
+    publishedAt: "2026-06-27T13:00:00+00:00",
+    updatedAt: "2026-06-27T13:00:00+00:00",
+    body: [
+      {
+        type: "p",
+        text: "Ecuador vs Germany is a genuinely intriguing World Cup 2026 tie — Ecuador's quick, physical, well-organised team against Germany's possession-based pedigree. This guide tells you where to watch it live and free, when it kicks off, who's likely to start and how the game might play out.",
+      },
+      { type: "h2", text: "How to watch Ecuador vs Germany live free" },
+      {
+        type: "p",
+        text: "Watch Ecuador vs Germany live and free on SportixTV, straight in your browser with no app or sign-up. Open the events page, find the fixture, and the watch link appears next to it once the match is live — with multiple servers if one is slow.",
+      },
+      { type: "cta", href: "/events", label: "Find Ecuador vs Germany on live events" },
+      {
+        type: "p",
+        text: "World Cup 2026 kick-off times shift with the host city across the USA, Canada and Mexico, so check the events page to see the start time in your own timezone rather than assuming a fixed slot.",
+      },
+      { type: "cta", href: "/", label: "Browse all live channels" },
+      { type: "h2", text: "How the match could play out" },
+      {
+        type: "p",
+        text: "Ecuador are tough to break down, strong in the air and dangerous in transition, with a young squad that has grown into a serious side. Germany will want control of midfield and patient build-up to pull Ecuador's block apart. If Germany are sloppy in possession, Ecuador have the legs to punish them — this has the makings of a closer game than the names suggest.",
+      },
+      { type: "h2", text: "Expected line-ups & prediction" },
+      {
+        type: "p",
+        text: "Starting elevens are confirmed about an hour before kick-off, so treat any lineup as provisional. Germany start as favourites on quality and depth, but Ecuador are well-organised enough to make it competitive. Our honest read: Germany are more likely to win, yet a tight contest wouldn't surprise — we won't fabricate a final score. Watch it live to see the real result.",
+      },
+      DISCLAIMER_EN,
+    ],
+    faqs: [
+      {
+        q: "Where can I watch Ecuador vs Germany live for free?",
+        a: "On SportixTV. Open the events page, find Ecuador vs Germany, and use the watch link that appears when the game goes live — free, in your browser, no app needed.",
+      },
+      {
+        q: "What time does Ecuador vs Germany kick off?",
+        a: "Kick-off depends on the host city across the USA, Canada and Mexico. Check the SportixTV events page for the start time in your own timezone.",
+      },
+      {
+        q: "Who is favourite, Ecuador or Germany?",
+        a: "Germany are favourites on quality and squad depth, but Ecuador are organised and dangerous on the break, so it could be competitive. We don't publish an invented scoreline — the live match decides it.",
+      },
+    ],
+    relatedSlugs: [
+      "germany-vs-curacao-world-cup-2026",
+      "spain-vs-saudi-arabia-world-cup-2026",
+      "live-sports-tv-channels",
+    ],
+  },
+
+  // 13 — Spain vs Saudi Arabia, World Cup 2026 (match preview)
+  {
+    slug: "spain-vs-saudi-arabia-world-cup-2026",
+    lang: "en",
+    title: "Spain vs Saudi Arabia, World Cup 2026: Live Stream, Time, Tickets & Prediction",
+    description:
+      "How to watch Spain vs Saudi Arabia live free at World Cup 2026 — kick-off time, tickets explained, expected line-ups and an honest prediction.",
+    keywords: [
+      "spain vs saudi arabia",
+      "spain vs saudi arabia fifa",
+      "spain vs saudi arabia world cup 2026",
+      "spain vs saudi arabia time",
+      "spain vs saudi arabia prediction",
+      "spain vs saudi arabia live score",
+      "spain vs saudi arabia tickets",
+      "spain vs saudi arabia date",
+    ],
+    publishedAt: "2026-06-27T14:00:00+00:00",
+    updatedAt: "2026-06-27T14:00:00+00:00",
+    body: [
+      {
+        type: "p",
+        text: "Spain vs Saudi Arabia is a tie a lot of fans have circled at World Cup 2026 — and after Saudi Arabia famously beat Argentina at the 2022 finals, nobody is taking the Green Falcons lightly. This guide covers where to watch it live and free, the kick-off time and date, how tickets work, the expected line-ups and an honest prediction.",
+      },
+      { type: "h2", text: "Where to watch Spain vs Saudi Arabia live free" },
+      {
+        type: "p",
+        text: "You can watch Spain vs Saudi Arabia live and free on SportixTV in your browser — no app, no account. Open the events page, find the fixture, and the watch link appears beside it when the match goes live, with multiple servers so you can switch if one buffers.",
+      },
+      { type: "cta", href: "/events", label: "Find Spain vs Saudi Arabia on live events" },
+      {
+        type: "p",
+        text: "Kick-off time and date depend on the host city, since World Cup 2026 runs across the USA, Canada and Mexico. Check the events page for the exact start time in your own timezone instead of assuming a fixed slot.",
+      },
+      { type: "h2", text: "Do you need tickets to watch?" },
+      {
+        type: "p",
+        text: "Tickets are only for attending the match in person at the stadium — those are sold exclusively through FIFA's official ticketing site, and SportixTV does not sell tickets. To watch from home you don't need a ticket at all: just open the live stream on SportixTV for free.",
+      },
+      { type: "cta", href: "/", label: "Browse all live channels" },
+      { type: "h2", text: "Spain vs Saudi Arabia prediction" },
+      {
+        type: "p",
+        text: "Spain are clear favourites — a possession-heavy, technically elite side with strength in depth. But Saudi Arabia have shown at a World Cup that a disciplined, energetic team can stun a giant on the day, so complacency would be dangerous. Expected line-ups firm up about an hour before kick-off. Our honest call: Spain should win, but we won't invent a scoreline — watch it live for the real result.",
+      },
+      DISCLAIMER_EN,
+    ],
+    faqs: [
+      {
+        q: "Where can I watch Spain vs Saudi Arabia live for free?",
+        a: "On SportixTV. Open the events page, find Spain vs Saudi Arabia, and use the watch link that appears when the match goes live — free, in your browser, no app or sign-up required.",
+      },
+      {
+        q: "Do I need a ticket to watch Spain vs Saudi Arabia?",
+        a: "No. Tickets are only for attending in person at the stadium, sold via FIFA's official site. To watch from home you don't need a ticket — just open the free live stream on SportixTV.",
+      },
+      {
+        q: "Who will win Spain vs Saudi Arabia?",
+        a: "Spain are strong favourites on quality and depth, but Saudi Arabia proved at the 2022 World Cup they can upset a top side, so it's not a foregone conclusion. We don't publish a fabricated scoreline — the live match decides it.",
+      },
+    ],
+    relatedSlugs: [
+      "germany-vs-curacao-world-cup-2026",
+      "ecuador-vs-germany-world-cup-2026",
+      "live-football-today-bn",
+    ],
+  },
 ];
 
 export function getAllPosts(): BlogPost[] {
