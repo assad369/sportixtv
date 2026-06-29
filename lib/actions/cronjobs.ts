@@ -30,9 +30,10 @@ function authHeader(): Record<string, string> {
 }
 
 /**
- * Register (or update) both cron jobs on cron-job.org.
+ * Register (or update) all cron jobs on cron-job.org.
  * Persists the returned jobIds in the settings doc so re-runs use PATCH.
- * formData accepts `fixturesIntervalHours` (default 6).
+ * formData accepts `fixturesIntervalHours` (default 6) and
+ * `iccIntervalHours` (default 6).
  */
 export async function registerCronJobs(formData: FormData): Promise<void> {
   await requireSession();
@@ -47,11 +48,16 @@ export async function registerCronJobs(formData: FormData): Promise<void> {
       1,
       Math.min(24, Number(formData.get("fixturesIntervalHours") ?? 6) || 6),
     );
+    const iccIntervalHours = Math.max(
+      1,
+      Math.min(24, Number(formData.get("iccIntervalHours") ?? 6) || 6),
+    );
 
     const col = await settings();
     const doc = await col.findOne({ _id: "site" });
     const existing = doc?.cronJobIds ?? {};
 
+    // ── sync-fixtures ──────────────────────────────────────────────────────────
     let syncFixturesJobId: number;
     const fixturesInput = {
       apiKey: key,
@@ -68,6 +74,7 @@ export async function registerCronJobs(formData: FormData): Promise<void> {
       syncFixturesJobId = await createCronJob(fixturesInput);
     }
 
+    // ── worldcup-sync ──────────────────────────────────────────────────────────
     let worldcupJobId: number;
     const worldcupInput = {
       apiKey: key,
@@ -84,9 +91,35 @@ export async function registerCronJobs(formData: FormData): Promise<void> {
       worldcupJobId = await createCronJob(worldcupInput);
     }
 
+    // ── icc-sync ───────────────────────────────────────────────────────────────
+    let iccJobId: number;
+    const iccInput = {
+      apiKey: key,
+      url: `${base}/api/cron/icc`,
+      title: "SportixTV — icc-sync",
+      enabled: true,
+      headers,
+      schedule: everyNHours(iccIntervalHours),
+    };
+    if (existing.icc) {
+      await updateCronJob(existing.icc, iccInput);
+      iccJobId = existing.icc;
+    } else {
+      iccJobId = await createCronJob(iccInput);
+    }
+
     await col.updateOne(
       { _id: "site" },
-      { $set: { cronJobIds: { syncFixtures: syncFixturesJobId, worldcup: worldcupJobId } } },
+      {
+        $set: {
+          cronJobIds: {
+            syncFixtures: syncFixturesJobId,
+            worldcup: worldcupJobId,
+            icc: iccJobId,
+          },
+          iccSyncIntervalHours: iccIntervalHours,
+        },
+      },
       { upsert: true },
     );
   } catch (err) {
@@ -99,7 +132,7 @@ export async function registerCronJobs(formData: FormData): Promise<void> {
   redirect("/admin/autopilot");
 }
 
-/** Delete both registered jobs from cron-job.org and clear the stored jobIds. */
+/** Delete all registered cron jobs from cron-job.org and clear the stored jobIds. */
 export async function unregisterCronJobs(_formData: FormData): Promise<void> {
   await requireSession();
   let errorMsg: string | null = null;
@@ -112,6 +145,7 @@ export async function unregisterCronJobs(_formData: FormData): Promise<void> {
 
     if (existing.syncFixtures) await deleteCronJob(key, existing.syncFixtures);
     if (existing.worldcup) await deleteCronJob(key, existing.worldcup);
+    if (existing.icc) await deleteCronJob(key, existing.icc);
     await col.updateOne({ _id: "site" }, { $unset: { cronJobIds: "" } });
   } catch (err) {
     errorMsg = err instanceof Error ? err.message : String(err);

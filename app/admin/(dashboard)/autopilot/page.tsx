@@ -61,6 +61,12 @@ export default async function AutopilotPage({
           >
             Run history
           </Link>
+          <Link
+            href="/admin/autopilot/icc"
+            className="rounded-lg border border-brand/50 bg-brand/10 px-4 py-2 text-sm font-medium text-brand hover:bg-brand/15"
+          >
+            ICC Cricket
+          </Link>
           {enabled > 0 && <SyncNowButton label="Sync all now" />}
         </div>
       </div>
@@ -232,12 +238,18 @@ export default async function AutopilotPage({
                   </span>{" "}
                   — daily, same header
                 </li>
+                <li>
+                  <span className="font-mono text-xs">
+                    GET {process.env.NEXT_PUBLIC_SITE_URL}/api/cron/icc
+                  </span>{" "}
+                  — every 6 h, same header (ICC cricket fixtures)
+                </li>
               </ul>
             </div>
           ) : (
             <div className="space-y-4">
               <div className="text-sm text-ink-muted">
-                {cronJobIds?.syncFixtures || cronJobIds?.worldcup ? (
+                {cronJobIds?.syncFixtures || cronJobIds?.worldcup || cronJobIds?.icc ? (
                   <p>
                     Registered jobs:{" "}
                     {cronJobIds.syncFixtures && (
@@ -246,8 +258,13 @@ export default async function AutopilotPage({
                       </Badge>
                     )}
                     {cronJobIds.worldcup && (
-                      <Badge variant="brand">
+                      <Badge variant="brand" className="mr-1">
                         worldcup #{cronJobIds.worldcup}
+                      </Badge>
+                    )}
+                    {cronJobIds.icc && (
+                      <Badge variant="brand">
+                        icc #{cronJobIds.icc}
                       </Badge>
                     )}
                   </p>
@@ -270,14 +287,27 @@ export default async function AutopilotPage({
                     className="w-24 rounded-lg border border-edge bg-surface px-3 py-1.5 text-sm"
                   />
                 </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium">
+                    ICC sync interval (hours)
+                  </label>
+                  <input
+                    type="number"
+                    name="iccIntervalHours"
+                    defaultValue={settingsDoc.iccSyncIntervalHours ?? 6}
+                    min={1}
+                    max={24}
+                    className="w-24 rounded-lg border border-edge bg-surface px-3 py-1.5 text-sm"
+                  />
+                </div>
                 <Button type="submit" size="sm">
-                  {cronJobIds?.syncFixtures || cronJobIds?.worldcup
+                  {cronJobIds?.syncFixtures || cronJobIds?.worldcup || cronJobIds?.icc
                     ? "Update schedules"
                     : "Register schedules"}
                 </Button>
               </form>
 
-              {(cronJobIds?.syncFixtures || cronJobIds?.worldcup) && (
+              {(cronJobIds?.syncFixtures || cronJobIds?.worldcup || cronJobIds?.icc) && (
                 <form action={unregisterCronJobs}>
                   <Button type="submit" variant="secondary" size="sm">
                     Unregister schedules

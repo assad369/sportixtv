@@ -1,6 +1,7 @@
 import type { SourceAdapter } from "./types";
 import { thesportsdbAdapter } from "./thesportsdb";
 import { referenceAdapter } from "./reference";
+import { iccAdapter } from "./icc";
 
 /**
  * Adapter registry — the single pluggable extension point. To add a provider:
@@ -9,9 +10,9 @@ import { referenceAdapter } from "./reference";
  */
 export const ADAPTERS: Record<string, SourceAdapter> = {
   [thesportsdbAdapter.id]: thesportsdbAdapter, // default data source
-  [referenceAdapter.id]: referenceAdapter, // synthetic / generic-JSON testing
+  [iccAdapter.id]: iccAdapter,                 // ICC cricket (icc-cricket.com)
+  [referenceAdapter.id]: referenceAdapter,     // synthetic / generic-JSON testing
   // [apiFootballAdapter.id]: apiFootballAdapter,   // ← future
-  // [cricApiAdapter.id]: cricApiAdapter,           // ← future
 };
 
 export function getAdapter(id: string): SourceAdapter | undefined {

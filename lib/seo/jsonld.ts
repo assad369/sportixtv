@@ -305,6 +305,63 @@ export function eventsListJsonLd(
   };
 }
 
+export function iccFixturesJsonLd(events: EventLite[]) {
+  const url = siteUrl();
+  const pageUrl = `${url}/icc/fixtures`;
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      breadcrumbJsonLd([
+        { name: "Home", url },
+        { name: "ICC Cricket Fixtures", url: pageUrl },
+      ]),
+      {
+        "@type": "ItemList",
+        "@id": `${pageUrl}/#list`,
+        name: "ICC International Cricket Fixtures",
+        description:
+          "Full ICC Men's and Women's international cricket schedule — T20I, ODI and Test matches with dates, venues and live streaming.",
+        numberOfItems: events.length,
+        itemListElement: events.map((e, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          item: {
+            "@type": "SportsEvent",
+            name: e.title,
+            url: `${url}/event/${e.slug}`,
+            startDate: e.startsAt,
+            ...(e.endsAt ? { endDate: e.endsAt } : {}),
+            eventStatus: "https://schema.org/EventScheduled",
+            sport: "Cricket",
+            ...(e.venue
+              ? { location: { "@type": "Place", name: e.venue } }
+              : {}),
+            ...(e.teamA && e.teamB
+              ? {
+                  competitor: [
+                    { "@type": "SportsTeam", name: e.teamA.name },
+                    { "@type": "SportsTeam", name: e.teamB.name },
+                  ],
+                }
+              : {}),
+          },
+        })),
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${pageUrl}/#webpage`,
+        url: pageUrl,
+        name: "ICC Cricket Fixtures & Schedule 2026",
+        description:
+          "ICC Men's and Women's cricket fixtures — T20I, ODI, Test match schedule with kickoff times and live streaming.",
+        isPartOf: { "@id": `${url}/#website` },
+        about: { "@id": `${pageUrl}/#list` },
+        breadcrumb: { "@id": `${pageUrl}/#breadcrumb` },
+      },
+    ],
+  };
+}
+
 export function worldCupFixturesJsonLd(events: EventLite[]) {
   const url = siteUrl();
   const pageUrl = `${url}/fixtures`;

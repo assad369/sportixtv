@@ -19,10 +19,19 @@ export interface SiteSettings {
   popunderEnabled: boolean;
   /** Channel `_id` (hex) auto-linked to World Cup 2026 fixtures on sync. */
   worldCupDefaultChannelId?: string;
+  /** ObjectId hex of the ICC fixture source created in the autopilot sources UI. */
+  iccFixtureSourceId?: string;
+  /** Default channel IDs (hex) applied to ICC Men's events on sync (overrideable per-event via lockedFields). */
+  iccMenDefaultChannelIds?: string[];
+  /** Default channel IDs (hex) applied to ICC Women's events on sync. */
+  iccWomenDefaultChannelIds?: string[];
+  /** How often the ICC cron runs (hours, 1–24). Default: 6. */
+  iccSyncIntervalHours?: number;
   /** cron-job.org jobIds registered via the Autopilot scheduler UI. */
   cronJobIds?: {
     syncFixtures?: number;
     worldcup?: number;
+    icc?: number;
   };
 }
 

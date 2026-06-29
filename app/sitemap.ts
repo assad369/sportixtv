@@ -35,6 +35,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
     },
     {
+      url: `${url}/icc/fixtures`,
+      changeFrequency: "daily",
+      priority: 0.9,
+      lastModified: now,
+    },
+    {
       url: `${url}/blog`,
       changeFrequency: "weekly",
       priority: 0.7,
