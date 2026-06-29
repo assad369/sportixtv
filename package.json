@@ -11,12 +11,14 @@
     "test:sync": "tsx scripts/test-sync.ts"
   },
   "dependencies": {
+    "@sparticuz/chromium-min": "^149.0.0",
     "bcryptjs": "^3.0.3",
     "hls.js": "^1.6.16",
     "jose": "^6.2.3",
     "mongodb": "^7.3.0",
     "nanoid": "^5.1.11",
     "next": "16.2.9",
+    "playwright-core": "^1.61.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "server-only": "^0.0.1",
@@ -29,6 +31,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "playwright": "^1.61.1",
     "tailwindcss": "^4",
     "tsx": "^4.22.4",
     "typescript": "^5"

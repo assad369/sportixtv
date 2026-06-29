@@ -1,5 +1,6 @@
 import type { FetchContext, NormalizedFixture, SyncMode } from "../types";
 import type { AdapterCompetition, SourceAdapter } from "./types";
+import { launchBrowser } from "../browser";
 
 /**
  * ICC Cricket adapter. Fetches from https://www.icc-cricket.com/fixtures-results
@@ -424,6 +425,76 @@ async function fetchHtmlAndExtract(
   return [];
 }
 
+// ── Headless browser strategy ────────────────────────────────────────────────
+
+/**
+ * Primary fetch strategy. Launches a headless Playwright browser, navigates to
+ * the ICC fixtures page, and intercepts XHR/fetch responses that contain match
+ * data. This handles ICC's PPR/CSR setup where the server-side HTML contains no
+ * fixture payload and all data is loaded client-side via JavaScript.
+ *
+ * Falls back to reading __NEXT_DATA__ from the fully-rendered DOM in case ICC
+ * ever reverts to SSR. Returns [] on any error so the caller can try strategies
+ * A–C instead.
+ */
+async function fetchViaHeadlessBrowser(
+  pageUrl: string,
+  signal: AbortSignal,
+  diag: string[],
+): Promise<IccMatch[]> {
+  let browser = null;
+  try {
+    browser = await launchBrowser();
+    const ctx = await browser.newContext({
+      userAgent:
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      extraHTTPHeaders: { "Accept-Language": "en-US,en;q=0.9" },
+    });
+    const page = await ctx.newPage();
+    const capturedMatches: IccMatch[] = [];
+
+    // Intercept JSON responses from likely fixture/match API calls.
+    page.on("response", async (response) => {
+      const url = response.url();
+      const ct = response.headers()["content-type"] ?? "";
+      if (!ct.includes("application/json")) return;
+      if (!/match|fixture|schedule|cricket/i.test(url)) return;
+      try {
+        const json = await response.json();
+        const found = extractMatches(json as Record<string, unknown>);
+        if (found.length) capturedMatches.push(...found);
+      } catch {
+        // Non-JSON body or parse error — ignore
+      }
+    });
+
+    // Abort-aware navigation with a 30 s hard cap (inside the 45 s cron budget).
+    const abortPromise = new Promise<never>((_, reject) => {
+      signal.addEventListener("abort", () => reject(new Error("sync aborted")), { once: true });
+    });
+    await Promise.race([
+      page.goto(pageUrl, { waitUntil: "networkidle", timeout: 30_000 }),
+      abortPromise,
+    ]);
+
+    // If XHR interception found nothing, try __NEXT_DATA__ from the rendered DOM.
+    if (!capturedMatches.length) {
+      const html = await page.content();
+      capturedMatches.push(...extractNextData(html));
+    }
+
+    await ctx.close();
+    return capturedMatches;
+  } catch (err) {
+    diag.push(
+      `headless browser [${pageUrl}]: ${err instanceof Error ? err.message : String(err)}`,
+    );
+    return [];
+  } finally {
+    if (browser) await browser.close().catch(() => {});
+  }
+}
+
 // ── Adapter ──────────────────────────────────────────────────────────────────
 
 function baseOf(ctx: FetchContext): string {
@@ -468,13 +539,29 @@ export const iccAdapter: SourceAdapter = {
       ? ctx.competitions
       : [{ providerLeagueId: "men:all" }, { providerLeagueId: "women:all" }];
 
-    // Step 1: Fetch all matches from ICC once (expensive — one HTTP round-trip).
+    // Step 1: Fetch all matches from ICC once.
     let allMatches: IccMatch[] = [];
+
+    // Strategy 0 (primary): headless browser with XHR/fetch interception.
+    // ICC uses PPR/CSR so the server-side HTML contains no fixture data;
+    // a real browser execution is required to trigger the data-loading JS.
+    if (!allMatches.length && !ctx.signal.aborted) {
+      const origin = (() => {
+        try { return new URL(base).origin; } catch { return base; }
+      })();
+      allMatches = await fetchViaHeadlessBrowser(
+        `${origin}/fixtures-results`,
+        ctx.signal,
+        diag,
+      );
+    }
 
     // Strategy A: treat base URL as a direct JSON API endpoint.
     // This works when the admin has configured a discovered JSON API URL (e.g. from
     // browser DevTools) rather than the default HTML page URL.
-    allMatches = await fetchAsJson(ctx.fetchJson, base, ctx.signal, diag);
+    if (!allMatches.length && !ctx.signal.aborted) {
+      allMatches = await fetchAsJson(ctx.fetchJson, base, ctx.signal, diag);
+    }
 
     // Strategy B: try known ICC API paths against the site's origin.
     // Extracts just the origin so paths like /api/matches are correct — appending
@@ -512,13 +599,10 @@ export const iccAdapter: SourceAdapter = {
     // SyncRun.errors and the admin sees a red badge with an actionable message.
     if (!allMatches.length) {
       throw new Error(
-        "ICC adapter: no fixtures found after trying all strategies. " +
+        "ICC adapter: no fixtures found after trying all strategies (headless browser + HTTP fallbacks). " +
         "Diagnostics: " +
         (diag.length ? diag.join(" | ") : "all strategies returned empty") +
-        " — The ICC website likely uses client-side/streaming data loading (PPR). " +
-        "To fix: open the ICC fixtures page in a browser → DevTools → Network → " +
-        "XHR/Fetch → find the JSON call that returns fixture data → copy that URL → " +
-        "update the Source Base URL at Admin → Autopilot → Sources → ICC Cricket → Edit.",
+        " — Check that CHROMIUM_RELEASE_URL is set in env and the ICC fixtures page is reachable.",
       );
     }
 
