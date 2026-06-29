@@ -14,10 +14,15 @@ function statusVariant(status: string): "live" | "brand" | "default" {
   return "default";
 }
 
-export default async function AutopilotPage() {
+export default async function AutopilotPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ scheduler_error?: string }>;
+}) {
   await requireSession();
   const col = await settings();
-  const [sources, runs, settingsDoc] = await Promise.all([
+  const [params, sources, runs, settingsDoc] = await Promise.all([
+    searchParams,
     getFixtureSources(),
     getRecentSyncRuns(8),
     col.findOne({ _id: "site" }).then((d) => d ?? DEFAULT_SETTINGS),
@@ -25,6 +30,7 @@ export default async function AutopilotPage() {
   const enabled = sources.filter((s) => s.enabled).length;
   const hasCronApiKey = Boolean(process.env.CRONJOB_API_KEY);
   const cronJobIds = settingsDoc.cronJobIds;
+  const schedulerError = params.scheduler_error;
 
   return (
     <div className="flex flex-col gap-8">
@@ -193,6 +199,11 @@ export default async function AutopilotPage() {
           Scheduler (cron-job.org)
         </h2>
         <div className="rounded-xl border border-edge p-4">
+          {schedulerError && (
+            <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+              {schedulerError}
+            </div>
+          )}
           {!hasCronApiKey ? (
             <div className="space-y-2 text-sm">
               <p className="font-medium text-amber-500">

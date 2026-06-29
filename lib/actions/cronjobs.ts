@@ -36,73 +36,90 @@ function authHeader(): Record<string, string> {
  */
 export async function registerCronJobs(formData: FormData): Promise<void> {
   await requireSession();
-  const key = apiKey();
-  const base = siteUrl();
-  const headers = authHeader();
+  let errorMsg: string | null = null;
 
-  const intervalHours = Math.max(
-    1,
-    Math.min(24, Number(formData.get("fixturesIntervalHours") ?? 6) || 6),
-  );
+  try {
+    const key = apiKey();
+    const base = siteUrl();
+    const headers = authHeader();
 
-  const col = await settings();
-  const doc = await col.findOne({ _id: "site" });
-  const existing = doc?.cronJobIds ?? {};
+    const intervalHours = Math.max(
+      1,
+      Math.min(24, Number(formData.get("fixturesIntervalHours") ?? 6) || 6),
+    );
 
-  let syncFixturesJobId: number;
-  const fixturesInput = {
-    apiKey: key,
-    url: `${base}/api/cron/sync-fixtures`,
-    title: "SportixTV — sync-fixtures",
-    enabled: true,
-    headers,
-    schedule: everyNHours(intervalHours),
-  };
-  if (existing.syncFixtures) {
-    await updateCronJob(existing.syncFixtures, fixturesInput);
-    syncFixturesJobId = existing.syncFixtures;
-  } else {
-    syncFixturesJobId = await createCronJob(fixturesInput);
+    const col = await settings();
+    const doc = await col.findOne({ _id: "site" });
+    const existing = doc?.cronJobIds ?? {};
+
+    let syncFixturesJobId: number;
+    const fixturesInput = {
+      apiKey: key,
+      url: `${base}/api/cron/sync-fixtures`,
+      title: "SportixTV — sync-fixtures",
+      enabled: true,
+      headers,
+      schedule: everyNHours(intervalHours),
+    };
+    if (existing.syncFixtures) {
+      await updateCronJob(existing.syncFixtures, fixturesInput);
+      syncFixturesJobId = existing.syncFixtures;
+    } else {
+      syncFixturesJobId = await createCronJob(fixturesInput);
+    }
+
+    let worldcupJobId: number;
+    const worldcupInput = {
+      apiKey: key,
+      url: `${base}/api/cron/worldcup`,
+      title: "SportixTV — worldcup-sync",
+      enabled: true,
+      headers,
+      schedule: everyNHours(24),
+    };
+    if (existing.worldcup) {
+      await updateCronJob(existing.worldcup, worldcupInput);
+      worldcupJobId = existing.worldcup;
+    } else {
+      worldcupJobId = await createCronJob(worldcupInput);
+    }
+
+    await col.updateOne(
+      { _id: "site" },
+      { $set: { cronJobIds: { syncFixtures: syncFixturesJobId, worldcup: worldcupJobId } } },
+      { upsert: true },
+    );
+  } catch (err) {
+    errorMsg = err instanceof Error ? err.message : String(err);
   }
 
-  let worldcupJobId: number;
-  const worldcupInput = {
-    apiKey: key,
-    url: `${base}/api/cron/worldcup`,
-    title: "SportixTV — worldcup-sync",
-    enabled: true,
-    headers,
-    schedule: everyNHours(24),
-  };
-  if (existing.worldcup) {
-    await updateCronJob(existing.worldcup, worldcupInput);
-    worldcupJobId = existing.worldcup;
-  } else {
-    worldcupJobId = await createCronJob(worldcupInput);
+  if (errorMsg) {
+    redirect(`/admin/autopilot?scheduler_error=${encodeURIComponent(errorMsg)}`);
   }
-
-  await col.updateOne(
-    { _id: "site" },
-    { $set: { cronJobIds: { syncFixtures: syncFixturesJobId, worldcup: worldcupJobId } } },
-    { upsert: true },
-  );
-
   redirect("/admin/autopilot");
 }
 
 /** Delete both registered jobs from cron-job.org and clear the stored jobIds. */
 export async function unregisterCronJobs(_formData: FormData): Promise<void> {
   await requireSession();
-  const key = apiKey();
+  let errorMsg: string | null = null;
 
-  const col = await settings();
-  const doc = await col.findOne({ _id: "site" });
-  const existing = doc?.cronJobIds ?? {};
+  try {
+    const key = apiKey();
+    const col = await settings();
+    const doc = await col.findOne({ _id: "site" });
+    const existing = doc?.cronJobIds ?? {};
 
-  if (existing.syncFixtures) await deleteCronJob(key, existing.syncFixtures);
-  if (existing.worldcup) await deleteCronJob(key, existing.worldcup);
-  await col.updateOne({ _id: "site" }, { $unset: { cronJobIds: "" } });
+    if (existing.syncFixtures) await deleteCronJob(key, existing.syncFixtures);
+    if (existing.worldcup) await deleteCronJob(key, existing.worldcup);
+    await col.updateOne({ _id: "site" }, { $unset: { cronJobIds: "" } });
+  } catch (err) {
+    errorMsg = err instanceof Error ? err.message : String(err);
+  }
 
+  if (errorMsg) {
+    redirect(`/admin/autopilot?scheduler_error=${encodeURIComponent(errorMsg)}`);
+  }
   redirect("/admin/autopilot");
 }
 
