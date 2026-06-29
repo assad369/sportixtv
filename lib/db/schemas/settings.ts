@@ -19,6 +19,11 @@ export interface SiteSettings {
   popunderEnabled: boolean;
   /** Channel `_id` (hex) auto-linked to World Cup 2026 fixtures on sync. */
   worldCupDefaultChannelId?: string;
+  /** cron-job.org jobIds registered via the Autopilot scheduler UI. */
+  cronJobIds?: {
+    syncFixtures?: number;
+    worldcup?: number;
+  };
 }
 
 export const DEFAULT_SETTINGS: SiteSettings = {
