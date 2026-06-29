@@ -98,14 +98,54 @@ export default async function IccAutopilotPage({
           ICC fixture source created. Now configure default channels below and run a sync.
         </div>
       )}
-      {params.synced && (
-        <div className="rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-400">
-          Sync complete — {params.created ?? 0} new, {params.updated ?? 0} updated.
-        </div>
-      )}
+      {params.synced &&
+        (Number(params.created) > 0 || Number(params.updated) > 0) && (
+          <div className="rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-400">
+            Sync complete — {params.created ?? 0} new, {params.updated ?? 0} updated.
+          </div>
+        )}
+      {params.synced &&
+        Number(params.created) === 0 &&
+        Number(params.updated) === 0 && (
+          <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-400">
+            Sync ran but found no fixtures.{" "}
+            {iccRuns[0]?.errors.length
+              ? "See error details below."
+              : "Check the sync run for details."}
+            {iccRuns[0] && (
+              <Link
+                href={`/admin/autopilot/runs/${iccRuns[0].id}`}
+                className="ml-2 underline hover:no-underline"
+              >
+                View run →
+              </Link>
+            )}
+          </div>
+        )}
       {params.error && (
         <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
           {params.error}
+        </div>
+      )}
+
+      {/* ── Last sync error (shown whenever the most recent ICC run has errors) ── */}
+      {iccRuns[0]?.errors?.length > 0 && (
+        <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-5">
+          <h2 className="mb-2 text-sm font-semibold text-red-400">
+            Last sync error — action required
+          </h2>
+          {iccRuns[0].errors.map((e, i) => (
+            <p key={i} className="mt-1 text-sm text-ink-muted">
+              <span className="font-mono text-xs text-red-400">[{e.stage}]</span>{" "}
+              {e.message}
+            </p>
+          ))}
+          <Link
+            href={`/admin/autopilot/runs/${iccRuns[0].id}`}
+            className="mt-3 inline-block text-xs text-brand hover:underline"
+          >
+            Full run details →
+          </Link>
         </div>
       )}
 

@@ -4,9 +4,13 @@ import type { AdapterCompetition, SourceAdapter } from "./types";
 /**
  * ICC Cricket adapter. Fetches from https://www.icc-cricket.com/fixtures-results
  * using a three-stage strategy (stops at first success):
- *   1. Extract embedded __NEXT_DATA__ JSON from the rendered HTML page.
- *   2. Hit a known Umbraco/API endpoint at the same base URL.
- *   3. Treat baseUrl as a direct JSON API endpoint.
+ *   1. Treat baseUrl as a direct JSON endpoint (works when admin configures a
+ *      discovered API URL from browser DevTools).
+ *   2. Try known ICC API paths against the site's origin.
+ *   3. Fetch the HTML page and extract __NEXT_DATA__ or JSON-LD structured data.
+ *
+ * If all three strategies return nothing, the adapter throws a descriptive error
+ * so the engine records it in SyncRun.errors and the admin can diagnose.
  *
  * Competition `providerLeagueId` encodes gender + format as "gender:format":
  *   "men:all"     → all Men's formats
@@ -193,6 +197,9 @@ export function mapIccMatch(
   const league = buildLeague(gender, format, series);
   const endsAt = new Date(startsAt.getTime() + durationMs(format));
 
+  // venue is derived but unused in NormalizedFixture currently — kept for future use
+  void venueName(m);
+
   return {
     externalId: id,
     source: ICC_SOURCE,
@@ -276,27 +283,98 @@ function extractNextData(html: string): IccMatch[] {
   }
 }
 
+// ── JSON-LD extraction ────────────────────────────────────────────────────────
+
+function collectSportsEvents(data: unknown, out: IccMatch[]): void {
+  if (!data || typeof data !== "object") return;
+  const d = data as Record<string, unknown>;
+  const type = d["@type"];
+
+  if (type === "SportsEvent" || type === "Event") {
+    const competitors = Array.isArray(d.competitor) ? d.competitor : [];
+    const c0 = competitors[0] as Record<string, unknown> | undefined;
+    const c1 = competitors[1] as Record<string, unknown> | undefined;
+    const startDate = String(d.startDate ?? "");
+    const name = String(d.name ?? "");
+    if (startDate) {
+      out.push({
+        // Stable fingerprint ID — consistent across syncs for the same match.
+        Id: `jsonld:${startDate}||${name}`,
+        Title: name || undefined,
+        StartDate: startDate,
+        VenueName:
+          typeof d.location === "object" && d.location !== null
+            ? String((d.location as Record<string, unknown>).name ?? "") || undefined
+            : undefined,
+        HomeTeam: c0 ? { Name: String(c0.name ?? "") } : undefined,
+        AwayTeam: c1 ? { Name: String(c1.name ?? "") } : undefined,
+      });
+    }
+  }
+
+  if (type === "ItemList" && Array.isArray(d.itemListElement)) {
+    for (const el of d.itemListElement) {
+      const item =
+        typeof el === "object" && el !== null && "item" in el
+          ? (el as { item: unknown }).item
+          : el;
+      collectSportsEvents(item, out);
+    }
+  }
+}
+
+/** Extract SportsEvent objects from any JSON-LD blocks in the HTML. */
+function extractJsonLd(html: string): IccMatch[] {
+  const results: IccMatch[] = [];
+  const re = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    try {
+      const raw: unknown = JSON.parse(m[1]);
+      const items = Array.isArray(raw) ? raw : [raw];
+      for (const item of items) {
+        collectSportsEvents(item, results);
+      }
+    } catch {
+      // ignore malformed JSON-LD
+    }
+  }
+  return results;
+}
+
 // ── HTTP fetch strategies ────────────────────────────────────────────────────
 
-/** Known ICC Umbraco / internal API path fragments to try after the base URL. */
-const UMBRACO_PATHS = [
+/**
+ * Known ICC API paths to try against the site's origin (not the full base URL).
+ * Ordered from most-likely to least-likely based on common cricket website patterns.
+ */
+const ICC_API_PATHS = [
+  "/api/matches?status=upcoming",
+  "/api/matches",
+  "/api/fixtures?status=upcoming",
+  "/api/fixtures",
+  "/api/cricket/fixtures",
   "/umbraco/api/MatchApi/GetFutureMatches?matchType=upcoming",
   "/umbraco/api/MatchApi/GetFutureMatches",
-  "/api/fixtures",
-  "/api/v1/fixtures",
-  "/api/matches",
 ];
 
 async function fetchAsJson(
   fetchJson: FetchContext["fetchJson"],
   url: string,
   signal: AbortSignal,
+  diag: string[],
 ): Promise<IccMatch[]> {
   try {
     const payload = await fetchJson(url, { signal });
     const matches = extractMatches(payload as Record<string, unknown>);
+    if (!matches.length) {
+      diag.push(`${url}: JSON parsed but no match array found`);
+    }
     return matches;
-  } catch {
+  } catch (err) {
+    diag.push(
+      `${url}: ${err instanceof Error ? err.message : String(err)}`,
+    );
     return [];
   }
 }
@@ -304,24 +382,46 @@ async function fetchAsJson(
 async function fetchHtmlAndExtract(
   baseUrl: string,
   signal: AbortSignal,
+  diag: string[],
 ): Promise<IccMatch[]> {
+  let html: string;
   try {
     const res = await fetch(baseUrl, {
       signal,
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (compatible; SportixTVBot/1.0; +https://www.sportixtv.online)",
-        Accept: "text/html,application/xhtml+xml",
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.9",
+        "Cache-Control": "no-cache",
       },
       next: { revalidate: 0 },
     });
-    if (!res.ok) return [];
-    const html = await res.text();
-    return extractNextData(html);
-  } catch {
+    if (!res.ok) {
+      diag.push(`HTML fetch ${baseUrl}: HTTP ${res.status}`);
+      return [];
+    }
+    html = await res.text();
+  } catch (err) {
+    diag.push(
+      `HTML fetch ${baseUrl}: ${err instanceof Error ? err.message : String(err)}`,
+    );
     return [];
   }
+
+  // Strategy C1: __NEXT_DATA__ (works when ICC uses SSR, not PPR/streaming)
+  const fromNextData = extractNextData(html);
+  if (fromNextData.length) return fromNextData;
+
+  // Strategy C2: JSON-LD structured data (SportsEvent / ItemList)
+  const fromJsonLd = extractJsonLd(html);
+  if (fromJsonLd.length) return fromJsonLd;
+
+  diag.push(
+    `HTML fetch ${baseUrl}: page fetched (${html.length} chars) but no fixture data in __NEXT_DATA__ or JSON-LD. ` +
+    `ICC likely uses client-side data loading (PPR/streaming).`,
+  );
+  return [];
 }
 
 // ── Adapter ──────────────────────────────────────────────────────────────────
@@ -361,37 +461,65 @@ export const iccAdapter: SourceAdapter = {
     _mode: SyncMode,
   ): AsyncGenerator<NormalizedFixture[]> {
     const base = baseOf(ctx);
+    const diag: string[] = [];
 
     // Resolve which gender+format combos the admin wants.
     const comps = ctx.competitions.length
       ? ctx.competitions
       : [{ providerLeagueId: "men:all" }, { providerLeagueId: "women:all" }];
 
-    // Step 1: Fetch all matches from ICC once (expensive — one HTTP request).
+    // Step 1: Fetch all matches from ICC once (expensive — one HTTP round-trip).
     let allMatches: IccMatch[] = [];
 
-    // Strategy A: treat base as direct JSON API endpoint.
-    if (base !== DEFAULT_BASE) {
-      allMatches = await fetchAsJson(ctx.fetchJson, base, ctx.signal);
-    }
+    // Strategy A: treat base URL as a direct JSON API endpoint.
+    // This works when the admin has configured a discovered JSON API URL (e.g. from
+    // browser DevTools) rather than the default HTML page URL.
+    allMatches = await fetchAsJson(ctx.fetchJson, base, ctx.signal, diag);
 
-    // Strategy B: try known Umbraco paths.
-    if (!allMatches.length) {
-      for (const path of UMBRACO_PATHS) {
+    // Strategy B: try known ICC API paths against the site's origin.
+    // Extracts just the origin so paths like /api/matches are correct — appending
+    // to the full base URL (e.g. /fixtures-results/api/matches) would always 404.
+    if (!allMatches.length && !ctx.signal.aborted) {
+      const origin = (() => {
+        try {
+          return new URL(base).origin;
+        } catch {
+          return base;
+        }
+      })();
+
+      for (const path of ICC_API_PATHS) {
         if (ctx.signal.aborted) break;
-        allMatches = await fetchAsJson(ctx.fetchJson, `${base}${path}`, ctx.signal);
-        if (allMatches.length) break;
+        const found = await fetchAsJson(
+          ctx.fetchJson,
+          `${origin}${path}`,
+          ctx.signal,
+          diag,
+        );
+        if (found.length) {
+          allMatches = found;
+          break;
+        }
       }
     }
 
-    // Strategy C: fetch HTML page and extract __NEXT_DATA__.
+    // Strategy C: fetch HTML page → extract __NEXT_DATA__ and/or JSON-LD.
     if (!allMatches.length && !ctx.signal.aborted) {
-      allMatches = await fetchHtmlAndExtract(base, ctx.signal);
+      allMatches = await fetchHtmlAndExtract(base, ctx.signal, diag);
     }
 
+    // All strategies exhausted — throw so the engine logs a real error into
+    // SyncRun.errors and the admin sees a red badge with an actionable message.
     if (!allMatches.length) {
-      // Nothing found — log via empty yield so the engine records the attempt.
-      return;
+      throw new Error(
+        "ICC adapter: no fixtures found after trying all strategies. " +
+        "Diagnostics: " +
+        (diag.length ? diag.join(" | ") : "all strategies returned empty") +
+        " — The ICC website likely uses client-side/streaming data loading (PPR). " +
+        "To fix: open the ICC fixtures page in a browser → DevTools → Network → " +
+        "XHR/Fetch → find the JSON call that returns fixture data → copy that URL → " +
+        "update the Source Base URL at Admin → Autopilot → Sources → ICC Cricket → Edit.",
+      );
     }
 
     // Step 2: For each competition config, filter + normalise.
