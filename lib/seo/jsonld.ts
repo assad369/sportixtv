@@ -7,6 +7,94 @@ function siteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || "https://www.sportixtv.online";
 }
 
+function fallbackImage(): string {
+  return `${siteUrl()}/logo/sportixtv_logo.png`;
+}
+
+/**
+ * A complete schema.org SportsEvent node. Populates every field Google's Event
+ * rich-result guidance recommends (image, description, performer, offers,
+ * location.address) so Search Console stops flagging missing fields — both on
+ * the standalone event page and inside the fixture ItemLists.
+ */
+function sportsEventNode(
+  event: EventLite,
+  opts: { id?: string; sport?: string } = {},
+) {
+  const url = siteUrl();
+  const pageUrl = `${url}/event/${event.slug}`;
+  const hasTeams = Boolean(event.teamA && event.teamB);
+  const eventName = hasTeams
+    ? `${event.teamA!.name} vs ${event.teamB!.name}`
+    : event.title;
+  const sport = opts.sport ?? event.sport;
+  const description = `Watch ${event.title} live online for free in HD. ${event.league ?? sport} live streaming on SportixTV.`;
+  const teamImages = [event.teamA?.logoUrl, event.teamB?.logoUrl].filter(
+    (v): v is string => Boolean(v),
+  );
+  const image = teamImages.length ? teamImages : [fallbackImage()];
+
+  const teams = hasTeams
+    ? [
+        {
+          "@type": "SportsTeam",
+          name: event.teamA!.name,
+          ...(event.teamA!.logoUrl
+            ? { logo: { "@type": "ImageObject", url: event.teamA!.logoUrl } }
+            : {}),
+        },
+        {
+          "@type": "SportsTeam",
+          name: event.teamB!.name,
+          ...(event.teamB!.logoUrl
+            ? { logo: { "@type": "ImageObject", url: event.teamB!.logoUrl } }
+            : {}),
+        },
+      ]
+    : null;
+
+  return {
+    "@type": "SportsEvent",
+    ...(opts.id ? { "@id": opts.id } : {}),
+    name: eventName,
+    description,
+    url: pageUrl,
+    image,
+    startDate: event.startsAt,
+    ...(event.endsAt ? { endDate: event.endsAt } : {}),
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
+    location: event.venue
+      ? {
+          "@type": "Place",
+          name: event.venue,
+          address: event.venue,
+        }
+      : {
+          "@type": "VirtualLocation",
+          url: pageUrl,
+        },
+    sport,
+    ...(event.league
+      ? { organizer: { "@type": "Organization", name: event.league } }
+      : {}),
+    performer: teams ?? {
+      "@type": "SportsOrganization",
+      name: event.league ?? sport,
+    },
+    ...(teams ? { competitor: teams } : {}),
+    offers: {
+      "@type": "Offer",
+      name: `Free live stream of ${eventName}`,
+      price: "0",
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+      validFrom: event.startsAt,
+      url: pageUrl,
+    },
+  };
+}
+
 export function websiteJsonLd(settings: SiteSettings) {
   const url = siteUrl();
   return {
@@ -126,6 +214,7 @@ export function eventJsonLd(event: EventLite) {
   const images = [event.teamA?.logoUrl, event.teamB?.logoUrl].filter(
     (v): v is string => Boolean(v),
   );
+  const thumbnails = images.length ? images : [fallbackImage()];
 
   return {
     "@context": "https://schema.org",
@@ -135,58 +224,13 @@ export function eventJsonLd(event: EventLite) {
         { name: "Events", url: `${url}/events` },
         { name: eventName, url: pageUrl },
       ]),
-      {
-        "@type": "SportsEvent",
-        "@id": `${pageUrl}/#event`,
-        name: event.title,
-        description,
-        url: pageUrl,
-        ...(images.length ? { image: images } : {}),
-        startDate: event.startsAt,
-        ...(event.endsAt ? { endDate: event.endsAt } : {}),
-        eventStatus: "https://schema.org/EventScheduled",
-        eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
-        location: {
-          "@type": "VirtualLocation",
-          url: pageUrl,
-        },
-        sport: event.sport,
-        ...(event.league ? { organizer: { "@type": "Organization", name: event.league } } : {}),
-        ...(hasTeams
-          ? {
-              competitor: [
-                {
-                  "@type": "SportsTeam",
-                  name: event.teamA!.name,
-                  ...(event.teamA!.logoUrl
-                    ? { logo: { "@type": "ImageObject", url: event.teamA!.logoUrl } }
-                    : {}),
-                },
-                {
-                  "@type": "SportsTeam",
-                  name: event.teamB!.name,
-                  ...(event.teamB!.logoUrl
-                    ? { logo: { "@type": "ImageObject", url: event.teamB!.logoUrl } }
-                    : {}),
-                },
-              ],
-            }
-          : {}),
-        offers: {
-          "@type": "Offer",
-          price: "0",
-          priceCurrency: "USD",
-          availability: "https://schema.org/InStock",
-          validFrom: event.startsAt,
-          url: pageUrl,
-        },
-      },
+      sportsEventNode(event, { id: `${pageUrl}/#event` }),
       {
         "@type": "VideoObject",
         "@id": `${pageUrl}/#video`,
         name: `Watch ${eventName} Live`,
         description,
-        ...(images.length ? { thumbnailUrl: images } : {}),
+        thumbnailUrl: thumbnails,
         uploadDate: event.startsAt,
         contentUrl: pageUrl,
         embedUrl: pageUrl,
@@ -325,26 +369,7 @@ export function iccFixturesJsonLd(events: EventLite[]) {
         itemListElement: events.map((e, i) => ({
           "@type": "ListItem",
           position: i + 1,
-          item: {
-            "@type": "SportsEvent",
-            name: e.title,
-            url: `${url}/event/${e.slug}`,
-            startDate: e.startsAt,
-            ...(e.endsAt ? { endDate: e.endsAt } : {}),
-            eventStatus: "https://schema.org/EventScheduled",
-            sport: "Cricket",
-            ...(e.venue
-              ? { location: { "@type": "Place", name: e.venue } }
-              : {}),
-            ...(e.teamA && e.teamB
-              ? {
-                  competitor: [
-                    { "@type": "SportsTeam", name: e.teamA.name },
-                    { "@type": "SportsTeam", name: e.teamB.name },
-                  ],
-                }
-              : {}),
-          },
+          item: sportsEventNode(e, { sport: "Cricket" }),
         })),
       },
       {
@@ -382,26 +407,7 @@ export function worldCupFixturesJsonLd(events: EventLite[]) {
         itemListElement: events.map((e, i) => ({
           "@type": "ListItem",
           position: i + 1,
-          item: {
-            "@type": "SportsEvent",
-            name: e.title,
-            url: `${url}/event/${e.slug}`,
-            startDate: e.startsAt,
-            ...(e.endsAt ? { endDate: e.endsAt } : {}),
-            eventStatus: "https://schema.org/EventScheduled",
-            sport: "Soccer",
-            ...(e.venue
-              ? { location: { "@type": "Place", name: e.venue } }
-              : {}),
-            ...(e.teamA && e.teamB
-              ? {
-                  competitor: [
-                    { "@type": "SportsTeam", name: e.teamA.name },
-                    { "@type": "SportsTeam", name: e.teamB.name },
-                  ],
-                }
-              : {}),
-          },
+          item: sportsEventNode(e, { sport: "Soccer" }),
         })),
       },
       {
