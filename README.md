@@ -39,15 +39,15 @@ and **hls.js**, designed to deploy on **Vercel**.
    openssl rand -base64 32   # for each secret
    ```
 
-   | Var | Purpose |
-   |---|---|
-   | `MONGODB_URI` | Atlas connection string |
-   | `MONGODB_DB` | DB name (default `sportixtv`) |
-   | `SESSION_SECRET` | Admin JWT signing key |
-   | `STREAM_TOKEN_SECRET` | Playback token HMAC key (keep separate) |
-   | `SOURCE_ENC_KEY` | 32-byte base64 AES key for m3u8 URLs at rest |
-   | `NEXT_PUBLIC_SITE_URL` | Canonical site URL |
-   | `ADMIN_SEED_EMAIL/PASSWORD` | Used only by the seed script |
+   | Var                         | Purpose                                      |
+   | --------------------------- | -------------------------------------------- |
+   | `MONGODB_URI`               | Atlas connection string                      |
+   | `MONGODB_DB`                | DB name (default `sportixtv`)                |
+   | `SESSION_SECRET`            | Admin JWT signing key                        |
+   | `STREAM_TOKEN_SECRET`       | Playback token HMAC key (keep separate)      |
+   | `SOURCE_ENC_KEY`            | 32-byte base64 AES key for m3u8 URLs at rest |
+   | `NEXT_PUBLIC_SITE_URL`      | Canonical site URL                           |
+   | `ADMIN_SEED_EMAIL/PASSWORD` | Used only by the seed script                 |
 
 3. **Seed** the database (indexes, admin user, default categories, demo
    channels with public test streams):
@@ -73,6 +73,13 @@ and **hls.js**, designed to deploy on **Vercel**.
 3. In Atlas: create the cluster, a DB user, and allow network access from
    `0.0.0.0/0` (Vercel has no fixed egress IPs — rely on strong credentials).
 4. Set `NEXT_PUBLIC_SITE_URL` to your production domain and redeploy.
+
+## CI build verification
+
+- Recommended build command for CI: `pnpm run ci:build` (runs `pnpm install --frozen-lockfile` then `pnpm run build`).
+- If your host/build system is invoking `npx @cloudflare/next-on-pages` and you are not targeting Cloudflare Pages, change the build command to `pnpm run build` (or `pnpm run ci:build`) in the host settings — the `next-on-pages` adapter may introduce peer dependency conflicts during install.
+
+If you want me to add a platform-specific deployment workflow (Vercel, Netlify, or Cloudflare Pages) or fix Cloudflare adapter versions, tell me which one and I’ll implement it.
 
 ## Stream protection — how it works & honest limits
 
@@ -110,10 +117,10 @@ per serverless instance (upgrade path: Upstash Redis).
 
 ## Stack decisions
 
-| Choice | Why |
-|---|---|
-| MongoDB native driver | Serverless-friendly, no mongoose cold-start weight |
-| Hand-rolled jose JWT session | Single admin credentials login; Auth.js v5 unverified on Next 16 |
-| Custom hls.js player | Token refresh, failover and retry need the internals players hide |
-| Hand-rolled `public/sw.js` | `@serwist/next` depends on webpack; Next 16 builds with Turbopack |
-| Tailwind v4 + own `components/ui` | Small bespoke component set; no shadcn dependency tree |
+| Choice                            | Why                                                               |
+| --------------------------------- | ----------------------------------------------------------------- |
+| MongoDB native driver             | Serverless-friendly, no mongoose cold-start weight                |
+| Hand-rolled jose JWT session      | Single admin credentials login; Auth.js v5 unverified on Next 16  |
+| Custom hls.js player              | Token refresh, failover and retry need the internals players hide |
+| Hand-rolled `public/sw.js`        | `@serwist/next` depends on webpack; Next 16 builds with Turbopack |
+| Tailwind v4 + own `components/ui` | Small bespoke component set; no shadcn dependency tree            |
