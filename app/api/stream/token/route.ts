@@ -7,7 +7,6 @@ import {
 } from "@/lib/stream-token";
 import { decryptSecret } from "@/lib/crypto";
 import { rateLimit } from "@/lib/rate-limit";
-import { streamGuard } from "@/lib/stream-guard";
 
 const bodySchema = z.object({
   channelId: z.string().min(1),
@@ -15,9 +14,6 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const guardResponse = streamGuard(request);
-  if (guardResponse) return guardResponse;
-
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   if (!rateLimit(`stream-token:${ip}`, { capacity: 30, refillPerMin: 15 })) {
