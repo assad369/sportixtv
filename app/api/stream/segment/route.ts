@@ -4,12 +4,16 @@ import {
 } from "@/lib/stream-token";
 import { getDecryptedSource, originHeaders } from "@/lib/stream-source";
 import { rateLimit } from "@/lib/rate-limit";
+import { streamGuard } from "@/lib/stream-guard";
 
 function forbidden(reason: string) {
   return Response.json({ error: reason }, { status: 403 });
 }
 
 export async function GET(request: Request) {
+  const guardResponse = streamGuard(request);
+  if (guardResponse) return guardResponse;
+
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   // High limit: live streams request many segments per minute.

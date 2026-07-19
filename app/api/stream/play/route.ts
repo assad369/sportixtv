@@ -11,6 +11,7 @@ import {
   syntheticMaster,
 } from "@/lib/hls-manifest";
 import { rateLimit } from "@/lib/rate-limit";
+import { streamGuard } from "@/lib/stream-guard";
 
 const M3U8_HEADERS = {
   "Content-Type": "application/vnd.apple.mpegurl",
@@ -22,6 +23,9 @@ function forbidden(reason: string) {
 }
 
 export async function GET(request: Request) {
+  const guardResponse = streamGuard(request);
+  if (guardResponse) return guardResponse;
+
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
   // Generous: hls.js refreshes live media playlists every few seconds.
