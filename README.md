@@ -2,7 +2,7 @@
 
 A bdixtv24-style live TV / live sports streaming web app built with
 **Next.js 16 (Cache Components / PPR)**, **MongoDB Atlas**, **Tailwind v4**,
-and **hls.js**, designed to deploy on **Vercel**.
+and **hls.js**, designed to deploy on **Railway** (full Node.js runtime).
 
 ## Features
 
@@ -65,21 +65,32 @@ and **hls.js**, designed to deploy on **Vercel**.
 
    Admin: `/admin/login` with the seeded credentials.
 
-## Deploying to Vercel
+## Deploying to Railway
 
-1. Push the repo to GitHub and import it in Vercel.
-2. Add all env vars from `.env.local` (except the `ADMIN_SEED_*` pair —
-   seeding runs locally against Atlas).
+The app needs a **full Node.js runtime** — the MongoDB driver, `node:crypto`
+AES-256-GCM (`lib/crypto.ts`), Playwright/Chromium, and Next 16's Node.js
+Proxy (`proxy.ts`) all rule out edge/Workers hosts. Do not deploy this to
+Cloudflare Pages/Workers.
+
+1. Push the repo to GitHub and create a Railway project from it. Build and
+   start commands come from `railway.json` (Nixpacks → `pnpm run build` /
+   `pnpm run start`); Node version from `.nvmrc` + `engines`.
+2. In the service's **Variables** tab, add every var from `.env.example`
+   except the `ADMIN_SEED_*` pair — seeding runs locally against Atlas.
 3. In Atlas: create the cluster, a DB user, and allow network access from
-   `0.0.0.0/0` (Vercel has no fixed egress IPs — rely on strong credentials).
-4. Set `NEXT_PUBLIC_SITE_URL` to your production domain and redeploy.
+   `0.0.0.0/0` (Railway has no fixed egress IP on the base plan — rely on
+   strong credentials).
+4. Attach your custom domain in **Settings → Networking**, and set
+   `NEXT_PUBLIC_SITE_URL` to it (no trailing slash), then redeploy.
+
+Railway injects `PORT`; `next start` picks it up automatically. The
+healthcheck hits `/`.
 
 ## CI build verification
 
 - Recommended build command for CI: `pnpm run ci:build` (runs `pnpm install --frozen-lockfile` then `pnpm run build`).
-- If your host/build system is invoking `npx @cloudflare/next-on-pages` and you are not targeting Cloudflare Pages, change the build command to `pnpm run build` (or `pnpm run ci:build`) in the host settings — the `next-on-pages` adapter may introduce peer dependency conflicts during install.
-
-If you want me to add a platform-specific deployment workflow (Vercel, Netlify, or Cloudflare Pages) or fix Cloudflare adapter versions, tell me which one and I’ll implement it.
+- Use **pnpm** only — this project is pinned via `packageManager` and npm is
+  known to fail on it.
 
 ## Stream protection — how it works & honest limits
 
@@ -90,8 +101,8 @@ If you want me to add a platform-specific deployment workflow (Vercel, Netlify, 
   rewrites variant playlist URIs to longer-lived (4 h) session tokens that
   embed the **encrypted** target URL, so live refreshes keep flowing through
   the server. Segment URIs are rewritten to absolute origin URLs — segments
-  go browser→origin directly (full segment proxying is infeasible on Vercel:
-  bandwidth cost and response-size limits).
+  go browser→origin directly (full segment proxying is infeasible on any
+  managed host: bandwidth cost and response-size limits).
 - All tokens are HMAC-signed and bound to hashed IP + User-Agent;
   `proxy.ts` additionally rejects cross-origin and address-bar requests to
   `/api/stream/*`.

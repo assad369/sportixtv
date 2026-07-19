@@ -7,8 +7,10 @@ const CHROMIUM_RELEASE_URL =
 /**
  * Launches a Playwright browser appropriate for the current environment.
  *
- * On Vercel / AWS Lambda: uses @sparticuz/chromium-min which downloads a
- * serverless-compatible Chromium binary to /tmp on cold start.
+ * On Vercel / AWS Lambda / Railway: uses @sparticuz/chromium-min which
+ * downloads a self-contained Chromium binary to /tmp on cold start. Railway
+ * prunes devDependencies in the runtime image, so the `playwright` fallback
+ * below is not available there.
  *
  * Locally: uses the `playwright` devDependency which bundles its own Chromium.
  * Run `pnpm playwright install chromium` once after installing deps.
@@ -16,7 +18,11 @@ const CHROMIUM_RELEASE_URL =
 export async function launchBrowser(): Promise<Browser> {
   const { chromium } = await import("playwright-core");
 
-  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+  if (
+    process.env.VERCEL ||
+    process.env.AWS_LAMBDA_FUNCTION_VERSION ||
+    process.env.RAILWAY_ENVIRONMENT
+  ) {
     const { default: chromiumBin } = await import("@sparticuz/chromium-min");
     const executablePath = await chromiumBin.executablePath(CHROMIUM_RELEASE_URL);
     return chromium.launch({

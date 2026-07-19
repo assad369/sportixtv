@@ -13,17 +13,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Must precede setup-node: its `cache: pnpm` needs pnpm on PATH.
+      # Version comes from the `packageManager` pin in package.json.
+      - name: Install pnpm
+        run: corepack enable
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'pnpm'
 
-      - name: Install pnpm
-        run: corepack enable && corepack prepare pnpm@latest --activate
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
+      # ci:build already runs `pnpm install --frozen-lockfile`
       - name: Run build
         run: pnpm run ci:build

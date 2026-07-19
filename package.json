@@ -10,11 +10,10 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx scripts/seed.ts",
-    "test:sync": "tsx scripts/test-sync.ts",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "test:sync": "tsx scripts/test-sync.ts"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "dependencies": {
     "@sparticuz/chromium-min": "^149.0.0",
@@ -31,8 +30,6 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260710.1",
-    "@opennextjs/cloudflare": "^1.20.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -42,7 +39,6 @@
     "playwright": "^1.61.1",
     "tailwindcss": "^4",
     "tsx": "^4.22.4",
-    "typescript": "^5",
-    "wrangler": "^4.111.0"
+    "typescript": "^5"
   }
 }
