@@ -1,0 +1,27 @@
+# Nixpacks defaults are wrong for this project on two counts:
+#
+#   1. It pins corepack@0.24.1 (Jan 2024), which cannot load pnpm 11's
+#      entrypoint on modern Node — it dies with
+#      ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING. Nixpacks itself only knows
+#      pnpm up to v10 (railwayapp/nixpacks#1419), so we install a current
+#      corepack and let it honour the `packageManager` pin in package.json.
+#   2. Its Node selection resolved `engines: >=22` upward to nodejs_24.
+#      Pin nodejs_22 (LTS) so the deploy matches .nvmrc and engines.
+#
+# Overriding `cmds` replaces the provider's defaults for that phase entirely.
+
+[phases.setup]
+nixPkgs = ["nodejs_22"]
+
+[phases.install]
+cmds = [
+  "npm install -g corepack@latest",
+  "corepack enable",
+  "pnpm install --frozen-lockfile",
+]
+
+[phases.build]
+cmds = ["pnpm run build"]
+
+[start]
+cmd = "pnpm run start"

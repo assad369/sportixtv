@@ -13,7 +13,7 @@
     "test:sync": "tsx scripts/test-sync.ts"
   },
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   },
   "dependencies": {
     "@sparticuz/chromium-min": "^149.0.0",
